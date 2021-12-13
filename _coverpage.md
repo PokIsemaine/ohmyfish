@@ -9,5 +9,6 @@
 - 无需生成 html 文件
 - 众多主题
 
-[GitHub](https://github.com/docsifyjs/docsify/)
+[GitHub](https://github.com/PokIsemaine/ohmyinterview/tree/master)
 [Get Started](#docsify)
+
