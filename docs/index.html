@@ -36,14 +36,21 @@
 <script src="//cdn.jsdelivr.net/npm/gitalk/dist/gitalk.min.js"></script>
 <script>
   const gitalk = new Gitalk({
-    clientID: 'Github Application Client ID',
-    clientSecret: 'Github Application Client Secret',
+    clientID: '28afd68e3ae86916ce1e',
+    clientSecret: '8bb561f3122e0fd78f3561e23d7a57f8aa5a993b',
     repo: 'https://github.com/PokIsemaine/ohmyinterview/tree/master',
     owner: 'PokIsemaine',
-    admin: ['Github repo collaborators, only these guys can initialize github issues'],
+    admin: ['PokIsemaine'],
     // facebook-like distraction free mode
+    id: location.pathname,      // 用于标记评论是哪个页面的
     distractionFreeMode: false
   })
+  // 监听URL中hash的变化，如果发现换了一个MD文件，那么刷新页面，解决整个网站使用一个gitalk评论issues的问题。
+  window.onhashchange = function(event){
+    if(event.newURL.split('?')[0] !== event.oldURL .split('?')[0]) {
+      location.reload()
+    }
+  }
 </script>
 
 
