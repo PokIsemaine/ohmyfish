@@ -3,11 +3,9 @@
 
 # Oh my Interview <small>1.0</small>
 
-> 一个神奇的文档网站生成器。
+> 鱼竿钓鱼干的面试笔记
 
-- 简单、轻便 (压缩后 ~21kB)
-- 无需生成 html 文件
-- 众多主题
+- 直面人生的void
 
 [GitHub](https://github.com/PokIsemaine/ohmyinterview/tree/master)
 [Get Started](#docsify)
