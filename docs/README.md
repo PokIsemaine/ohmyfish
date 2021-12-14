@@ -6,7 +6,7 @@
     </div> 
 
 
-[![](https://img.shields.io/badge/OS-Arch%20Linux-33aadd?style=flat-square&logo=arch-linux&logoColor=ffffff)](https://www.archlinux.org/)
+[![](https://img.shields.io/badge/OS-Arch%20Linux-33aadd?style=flat-square&logo=arch-linux&logoColor=ffffff)](https://www.archlinux.org/) 
 ![info](https://img.shields.io/badge/Languae-C%2B%2B-green)![](https://img.shields.io/badge/Languae-markdown-orange)
 ![](https://img.shields.io/badge/Tools-Typora-blue)
 
@@ -50,6 +50,28 @@ git, vim, makefile：只会基础操作
 * 找份好工作，为家庭提供幸福生活的物质保障
 * 结交一些相关专业的朋友，扩大个人影响力
 * 锻炼专业技能的同时积累各方面资源
+
+
+
+## 注意事项
+
+如无特殊说明，我将使用如下配置进行一些代码的编写和运行
+
+OS: ArchLinux  x86_64
+
+Kernel: 5.15.7-arch1-1
+
+CPU: Intel i5-1035G1 (8) @ 3.600GHz
+
+GPU: Intel Iris Plus Graphics G1
+
+GPU: NVIDIA GeForce MX350
+
+Memory: 8G
+
+IDE：Clion
+
+g++ (GCC) 11.1.0
 
 
 
