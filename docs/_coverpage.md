@@ -1,5 +1,5 @@
 
-![logo](image/logo.png)
+![logo](_media/logo.png)
 
 # Oh my Interview <small>1.0</small>
 
