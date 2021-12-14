@@ -1,5 +1,5 @@
 
-![logo](_media/icon.svg)
+![logo](image/logo.png)
 
 # Oh my Interview <small>1.0</small>
 
@@ -7,6 +7,7 @@
 
 - 直面人生的void
 
+
 [GitHub](https://github.com/PokIsemaine/ohmyinterview/tree/master)
-[Get Started](#docsify)
+[Get Started](#)
 
