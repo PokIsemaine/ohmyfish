@@ -137,3 +137,152 @@ int main(){
 }                                             
 ```
 
+## 1.3节 练习
+
+> 1.7 ：编写一个包含不正确的嵌套注释的程序，观察编译器返回的错误信息 
+
+看1.8的例子即可
+
+> 1.8：指出下列哪些输出语句是合法的
+
+```c++
+std::cout << "/*"; 合法
+std::cout << "*/"; 合法
+std::cout << /* "*/" */; 不合法
+std::cout << /* "*/" /* "/*" */; 不合法
+```
+
+## 1.4节 练习
+
+### 1.4.1节 练习
+
+> 1.9：编写程序，使用while循环将50到100的整数相加
+
+```c++
+#include <iostream>
+
+int main(){
+    int sum=0,val=50;
+    while(val<=100){
+        sum+=val;
+        ++val;
+    }
+    std::cout << sum;
+    return 0;
+}
+```
+
+
+
+> 1.10：除了++运算符将对象的值+1之外，还有递减运算符--实现将其值减少1。编写程序打印10到0之间的整数
+
+```c++
+#include <iostream>
+
+int main(){
+    int val=10;
+    while(val>=0){
+        std::cout << val << std::endl;
+        --val;
+    }
+    return 0;
+}
+```
+
+
+
+> 1.11：编写程序，提示用户输入两个整数，打印出这两个整数所制定的范围内的所有整数
+
+```c++
+#include <iostream>
+
+int main(){
+    int start,end;
+    std::cout << "请输入两个整数:start end" << std::endl;
+    std::cin >> start >> end;
+    while(start<=end){
+        std::cout << start << std::endl;
+        ++start;
+    }
+    return 0;
+}
+```
+
+### 1.4.2节 练习
+
+> 1.12：下面的for循环完成了什么功能？sum的终值是多少？
+
+```c++
+int sum = 0;
+for (int i = -100; i<= 100;++i)
+	sum += i;
+```
+
+从-100加到100,sum最终为0
+
+
+
+> 1.13：使用for循环重做1.4.1节中所有练习
+
+练习1.9
+
+```c++
+#include <iostream>
+
+int main(){
+    int sum=0;
+    for(int val = 50;val <= 100;++val)
+        sum+=val;
+    std::cout << sum;
+    return 0;
+}
+```
+
+练习1.10
+
+```c++
+#include <iostream>
+
+int main(){
+    for(int val=10;val>=0;--val){
+        std::cout << val << std::endl;
+    }
+    return 0;
+}
+```
+
+练习1.11
+
+```c++
+#include <iostream>
+
+int main(){
+    int start,end;
+    std::cout << "请输入两个整数:start end" << std::endl;
+    std::cin >> start >> end;
+    for(int i = start ;i<=end ;++i){
+        std::cout << i << std::endl;
+    }
+    return 0;
+}
+```
+
+### 1.4.3节 练习
+
+> 1.16 编写程序，从cin读取一组数，输出其和
+>
+> Ctrl + D 结束输入
+
+```c++
+#include <iostream>
+
+int main(){
+    int sum=0,val=0;
+    while(std::cin>>val){
+        sum+=val;
+    }
+    std::cout<<sum;
+    return 0;
+}
+```
+
