@@ -33,7 +33,27 @@
   <link rel="stylesheet" href="//cdn.jsdelivr.net/npm/katex@latest/dist/katex.min.css">
   <!-- edit on github -->
   <script src="//cdn.jsdelivr.net/npm/docsify-edit-on-github"></script>
+
   <script>
+      var num = 0;
+      tex.initialize({ startOnLoad: false });
+      window.$docsify = {
+        markdown: {
+          renderer: {
+            code: function(code, lang) {
+              if (lang === "tex") {
+                return (
+                        '<span class="tex">'+ katex.renderToString(code, {
+                          throwOnError: false
+                        })+'</span>'
+                );
+              }
+            }
+          }
+        }
+      }
+
+
     window.$docsify = {
       name: '',
       repo: 'https://github.com/PokIsemaine/ohmyinterview/tree/master',
@@ -47,16 +67,16 @@
   		},
 	  plugins: [
         EditOnGithubPlugin.create(
-                'https://github.com/PokIsemaine/ohmyinterview/tree/master/docs/'
+                'https://github.com/PokIsemaine/ohmyinterview/tree/master/docs/',
         ),
       ],
 
       markdown: {
         renderer: {
-          code: function(code, lang) {
+          code: function (code, lang) {
             if (lang === "mermaid") {
               return (
-                      '<div class="mermaid">' + mermaid.render('mermaid-svg-' + num++, code) + "</div>"
+                      '<div class="mermaid">' + mermaid.render('mermaid-svg-' + id++, code) + "</div>"
               );
             }
             return this.origin.code.apply(this, arguments);
