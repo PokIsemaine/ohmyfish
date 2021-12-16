@@ -38,4 +38,4 @@ C++ 学习的**经典著作**
 
  ## 目录
 
-* [Charpter 0x01](./Charpter%200x0A.md)
+* [Charpter 0x01](./Charpter%200x01.md)
