@@ -21,34 +21,19 @@
   <script src="//unpkg.com/docsify-count/dist/countable.js"></script>
   <script src="//cdn.jsdelivr.net/npm/docsify/lib/plugins/emoji.min.js"></script>
   <script src="//cdn.jsdelivr.net/npm/docsify-copy-code/dist/docsify-copy-code.min.js"></script>
+  <!-- gittalk -->
   <script src="//cdn.jsdelivr.net/npm/docsify/lib/plugins/gitalk.min.js"></script>
   <script src="//cdn.jsdelivr.net/npm/gitalk/dist/gitalk.min.js"></script>
-  //支持 mermaid
+  <!-- mermaid -->
   <link rel="stylesheet" href="//cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.css">
   <script src="//cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
-  // 数学公式支持
+  <!-- 数学公式 -->
   <!-- CDN files for docsify-katex -->
   <script src="//cdn.jsdelivr.net/npm/docsify-katex@latest/dist/docsify-katex.js"></script>
   <link rel="stylesheet" href="//cdn.jsdelivr.net/npm/katex@latest/dist/katex.min.css">
+  <!-- edit on github -->
+  <script src="//cdn.jsdelivr.net/npm/docsify-edit-on-github"></script>
   <script>
-    var num = 0;
-    tex.initialize({ startOnLoad: false });
-    window.$docsify = {
-      markdown: {
-        renderer: {
-          code: function(code, lang) {
-            if (lang === "tex") {
-              return (
-                      '<span class="tex">'+ katex.renderToString(code, {
-                        throwOnError: false
-                      })+'</span>'
-              );
-            }
-          }
-        }
-      }
-    }
-
     window.$docsify = {
       name: '',
       repo: 'https://github.com/PokIsemaine/ohmyinterview/tree/master',
@@ -59,10 +44,12 @@
     	fontsize:'0.9em',
     	color:'rgb(90,90,90)',
     	language:'chinese'
-  		}
+  		},
 	  plugins: [
-        EditOnGithubPlugin.create('https://github.com/PokIsemaine/ohmyinterview/tree/master/docs',docEditBase, title)
-      ]
+        EditOnGithubPlugin.create(
+                'https://github.com/PokIsemaine/ohmyinterview/tree/master/docs/'
+        ),
+      ],
 
       markdown: {
         renderer: {
