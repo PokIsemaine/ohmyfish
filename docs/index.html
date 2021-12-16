@@ -35,25 +35,6 @@
   <script src="//cdn.jsdelivr.net/npm/docsify-edit-on-github"></script>
 
   <script>
-      var num = 0;
-      tex.initialize({ startOnLoad: false });
-      window.$docsify = {
-        markdown: {
-          renderer: {
-            code: function(code, lang) {
-              if (lang === "tex") {
-                return (
-                        '<span class="tex">'+ katex.renderToString(code, {
-                          throwOnError: false
-                        })+'</span>'
-                );
-              }
-            }
-          }
-        }
-      }
-
-
     window.$docsify = {
       name: '',
       repo: 'https://github.com/PokIsemaine/ohmyinterview/tree/master',
@@ -85,7 +66,7 @@
       }
 
 
-    }
+    };
   </script>
 
 <script>
