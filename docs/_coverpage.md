@@ -5,6 +5,7 @@
 > 鱼竿钓鱼干的面试笔记
 
 - 直面人生的void
+
 <html>
 
 </html>
@@ -18,5 +19,5 @@
 <br>
 
 [GitHub](https://github.com/PokIsemaine/ohmyinterview/tree/master)
-[Get Started](#)
+[Get Started](#id=📒内容)
 
