@@ -1,4 +1,4 @@
-<h1 align="center">📔 C++ Prime 0x01 l</h1>
+<h1 align="center">📔 C++ Prime 0x01 练习题解</h1>
 
 ## 1.1节 练习
 
