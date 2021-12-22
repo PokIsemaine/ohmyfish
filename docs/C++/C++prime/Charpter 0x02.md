@@ -385,3 +385,433 @@ ip2是int类型，值不确定
 (d) ++cnt; ++sz;//++不合法，const对象不能修改
 ```
 
+
+
+### 2.4.2节 练习
+
+> 2.27 下面的哪些初始化是合法的？请说明原因
+
+```c++
+(a) int i = -1,&r=0;
+//r是指向int的引用，但他不是常量引用，不可以和字面值绑定
+
+(b) int *const p2 = &i2;
+//p2 是 指向 int 的 const 指针
+//如果 i2 是 const int,不可以
+//如果 i2 是 int,可以
+
+(c) const int i = -1,&r=0;
+//r 是指向const int的常量引用，可以和字面值绑定
+
+(d) const int *const p3 = &i2;
+//p3是指向 const int的常量指针，i2 是不是 const int 都可以
+
+(e) const int *p1 = &i2;
+//p1 是指向 const int的指针，i2 是不是 const int 都可以
+
+(f) const int &const r2;
+//不可以，const不能用于引用上，因为引用不是对象
+
+(g) const int i2 = i,&r =i;
+//i2 可以被其他对象初始化，是不是 i 是不是 const 没关系
+//r 是指向const int的常量引用，用来初始化的是不是常量没关系
+```
+
+
+
+> 2.28 说明下面这些定义是什么意思，跳出其中不合法的部分
+
+```c++
+(a) int i,*const cp;//不合法，const 指针必须初始化
+
+(b) int *p1, *const p2;	//p2 是 const 指针，必须初始化
+
+(c) const int ic, &r = ic;//ic 是个const int 必须初始化
+
+(d) const int *const p3;//不合法，const 指针必须初始化
+
+(e) const int *p;
+```
+
+
+
+> 2.29 假设已有上个练习中定义的那些变量，则下面那些语句是合法的？
+
+```c++
+(a) i = ic;
+
+(b) p1 = p3;//不合法1,p3是个 const 指针，p1不是指向常量的指针
+
+(c) p1 = &ic;//不合法，ic是个常量，存放常量地址的值只能用指向常量的指针
+
+(d) p3 = &ic;//不合法，p3是 const指针，初始化后不能重新赋值
+
+(e) p2 = p1;//不合法，p2是 const 指针，初始化后不能重新赋值
+
+(f) ic = *p3;//不合法，ic 是 const int,初始化后不能重新赋值
+```
+
+### 2.4.3节 练习
+
+> 2.30 对于下面这些语句，请说明对象被声明成了顶层 const 还是底层 const？
+
+``` c++
+const int v2 = 0;//顶层const
+int v1=v2;
+
+int *p1 =&v1,&r1=v1;
+//没有const
+
+const int *p2 = &v2, *const p3 = &i, &r2 =v2;
+//p2 底层const,p3底层和顶层const，r2底层const（没法顶层）
+```
+
+
+
+> 2.31 假设上已有一个练习中所作的那写声明，则下面的那些语句是合法的，请说明顶层const和底层const在每个例子中有和体现
+
+```c++
+r1 = v2;//v2是顶层const 拷贝时不受影响
+p1 = p2;//不合法 p2 是底层const,但 p1是不是底层const 
+p2 = p1;//合法 p1是int* 可以转化为 const int*
+p1 = p3;//不合法 p3 是顶层const也是底层const,但 p1是不是底层const 
+p2 = p3;//合法，p2和p3 都是底层const,拷贝忽略顶层const
+```
+
+
+
+### 2.4.4节 练习
+
+> 2.32 下面代码是否合法？如果非法，请设法将其修改正确
+
+```c++
+int null = 0,*p = null;
+```
+
+非法，不能把 int 赋给 int*
+
+```
+int null = 0,*p = &null;
+```
+
+
+
+## 2.5节 练习
+
+### 2.5.2节 练习
+
+> 2.33 利用本节定义的变量，判断下列语句的运行结果
+>
+> 2.34 编写程序检查推断
+
+```c++
+a = 42;
+b = 42;
+c = 42;
+d = 42;
+e = 42;
+g = 42;
+```
+
+本节定义的变量
+
+```c++
+#include<bits/stdc++.h>
+using namespace std;
+
+int main(){
+	int i=0, &r = i;
+	auto a = r;					//a是一个整数
+	const int ci = i, &cr = ci;//ci是顶层const,cr是底层const
+	auto b = ci;				//b是一个整数，顶层const被忽略
+	auto c = cr;				//c是一个整数，auto引用推断的是引用指向对象的类型
+								//也就是ci，它的顶层const还是被忽略了
+	
+	auto d = &i;				//d是 int*
+	auto e = &ci;				//c是 const int*,对常量对象去地址是一种底层const
+	const auto f = ci;			//ci的推演类型是int,f类型是 const int
+	auto &g = ci;				//ci的推演类型是int,g类型是 int&
+	
+    a = 42;
+    b = 42;
+    c = 42;
+    d = 42;						//d int* 非法
+    e = 42;						//e const int* 非法
+    g = 42;
+
+	return 0;
+}
+```
+
+
+
+> 2.35 判断下列定义推断出的类型是什么，然后编写程序进行验证
+
+```c++
+#include<bits/stdc++.h>
+using namespace std;
+
+int main(){
+	const int i = 42;
+	auto j = i;					//j为int
+	const auto &k = i;			//k为 const int & 指向整型常量的引用
+	auto *p = &i;				//p为 const int*，对常量对象的取地址是底层const
+	const auto j2 = i,&k2=i;	//j2为 const int,k2 为 const int &
+	return 0;
+}
+```
+
+### 2.5.3节 练习
+
+> 2.36 关于下面的代码，请指出每一个变量的类型以及程序结束时它们各自的值
+
+```c++
+#include<bits/stdc++.h>
+using namespace std;
+
+int main(){
+	int a = 3, b = 4;
+	decltype(a) c = a;//int c = a;
+	decltype((b)) d =a;// int &d =a;
+	++c;//4
+	++d;//4
+    cout<<a<<endl;//4
+    cout<<b<<endl;//4
+    cout<<c<<endl;//4
+    cout<<d<<endl;//4
+    
+	return 0;
+}
+```
+
+
+
+> 2.37 赋值是会产生引用的一类典型表达式，引用类型就是左值的类型。也就是说，如果i是int,则表达式i=x的类型是int&。根据这一特点，请指出下面代码中每个变量的类型和值
+
+```c++
+int a =3,b =4;
+decltype(a) c =a;//c int
+decltype(a=b) d = a;//d int&
+```
+
+
+
+> 2.38 说明由 decltype 指定类型和 有 auto指定类型有何区别。请举出一个例子，decltype 指定的类型与 atuo类型一样，再举一个例子与auto指定的类型不同
+
+* auto 会忽略顶层const,decltype会包括顶层const
+* decltype的结果类型和表达式形式密切相关
+
+```c++
+#include<bits/stdc++.h>
+using namespace std;
+
+int main(){
+	int i=0,&r=i;
+	//相同
+	auto a = i;//int
+	decltype (i) b = i;//int
+	//不同
+	auto c=r;//int
+	decltype(r) d = r;//int &
+
+	return 0;
+}
+```
+
+## 2.6节 练习
+
+### 2.6.1节 练习
+
+> 2.39 观察运行一下程序，注意如果忘记写类定义体后面的分号会发生什么？记录相关信息，以后可能用到
+
+```c++
+#include<bits/stdc++.h>
+using namespace std;
+
+struct Foo{}
+
+int main(){
+	
+
+	return 0;
+}
+```
+
+报错：结构体定义后需要';'
+
+
+
+> 2.40 根据自己的理解写出 Sales_data 类，最好和书上的有些区别
+
+```c++
+struct Sales_data {
+	std::string bookNo;
+	unsigned units_sold = 0;
+	double revenue = 0.0;
+};
+```
+
+### 
+
+### 2.6.2节 练习
+
+> 2.41 使用你自己的类重写1.5.1节(第20页)、1.5.2节(第21页)和1.6节(第22页)的练习。眼下先把 Sales_data类的定义和main函数放同一个文件
+
+**1.5.1** 
+
+> 1.20 在网站http://www.informit.com/title/032174113 上，第1章的代码目录包含了头文件 Sales_item.h。将它拷贝到你自己的工作目录中。用它编写一个程序，读取一组书籍销售记录，将每条记录打印到标准输出上。
+
+
+
+ ```c++
+#include <iostream>
+
+struct Sales_data {
+	std::string bookNo;
+	unsigned units_sold = 0;
+	double revenue = 0.0;
+};
+
+int main(){
+	Sales_data item;
+	double price;
+	while(std::cin >> item.bookNo >> item.units_sold>>price){
+		item.revenue=item.units_sold * price;
+		std::cout << item.bookNo << " " << item.units_sold << " " << item.revenue << std::endl;
+    }
+	return 0;
+}
+ ```
+
+
+
+> 1.21 编写程序，读取两个 ISBN 相同的 Sales_item 对象，输出它们的和
+
+```c++
+#include <iostream>
+
+struct Sales_data {
+	std::string bookNo;
+	unsigned units_sold = 0;
+	double revenue = 0.0;
+};
+
+int main(){
+	Sales_data item_a,item_b;
+	double price;
+	std::cin >> item_a.bookNo >> item_a.units_sold>>price;
+	item_a.revenue=item_a.units_sold * price;
+	std::cin >> item_b.bookNo >> item_b.units_sold>>price;
+	item_b.revenue=item_b.units_sold * price;
+	std::cout<< item_a.bookNo << " "
+			<< item_a.units_sold + item_b.units_sold << " "//units_sold sum
+			<< item_a.revenue + item_b.revenue << " "//revenue sum
+			<< (item_a.revenue + item_b.revenue)/(item_a.units_sold + item_b.units_sold)//ave
+			<< std::endl;
+
+	return 0;
+}
+```
+
+> 1.22 编写程序，读取多个具有相同 ISBN的 Sales_item 对象，输出所有记录的和
+
+```c++
+#include <iostream>
+
+struct Sales_data {
+	std::string bookNo;
+	unsigned units_sold = 0;
+	double revenue = 0.0;
+};
+
+int main(){
+	Sales_data item,item_sum;
+	double price;
+    while(std::cin >> item.bookNo >> item.units_sold >> price){
+        item.revenue = item.units_sold * price;
+		item_sum.bookNo = item.bookNo;
+		item_sum.units_sold += item.units_sold;
+		item_sum.revenue += item.revenue;
+
+    }
+    std::cout<< item_sum.bookNo << " "
+			<< item_sum.units_sold << " "//units_sold sum
+			<< item_sum.revenue << " "//revenue sum
+			<< item_sum.revenue / item_sum.units_sold //ave
+			<< std::endl;
+
+	return 0;
+}
+```
+
+**1.5.2+1.6**
+
+书店程序
+
+```c++
+#include <iostream>
+
+struct Sales_data {
+	std::string bookNo;
+	unsigned units_sold = 0;
+	double revenue = 0.0;
+};
+
+int main(){
+	Sales_data total,item;
+	double price;
+    if (std::cin >> total.bookNo >> total.units_sold >> price){
+		total.revenue = total.units_sold * price;
+        while (std::cin >> item.bookNo >> item.units_sold >> price){
+			item.revenue = item.units_sold * price;
+            if (total.bookNo == item.bookNo) {
+                total.units_sold += item.units_sold;
+                total.revenue += item.revenue;
+            }else {
+                std::cout << total.bookNo << " "
+						<< total.units_sold << " "
+						<< total.revenue << std::endl;
+                total = item;
+            }
+        }
+		std::cout << total.bookNo << " "
+						<< total.units_sold << " "
+						<< total.revenue << std::endl;
+    }else {
+        std::cerr << "No data?!" << std::endl;
+        return -1;
+    }
+
+	return 0;
+}
+```
+
+
+
+### 2.6.3节 练习
+
+> 2.42 根据你的理解重写一个 Sales_data.h 头文件，并一次为基础重做 2.6.2节练习
+
+include进去就行了
+
+```c++
+include "Sales_data.h"
+```
+
+
+
+```c++
+#ifndef SALES_DATA_H
+#define SALES_DATA_H
+
+#include <string>
+
+struct Sales_data {
+	std::string bookNo;
+	unsigned units_sold = 0;
+	double revenue = 0.0;
+};
+#endif
+
+```
+
