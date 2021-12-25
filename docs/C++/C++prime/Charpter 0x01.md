@@ -38,7 +38,7 @@
 
 这个文件命名为 `tmp.cpp`
 
-```c++
+```cpp
 int main(){
 	return 0;
 }
@@ -64,7 +64,7 @@ g++ tmp.cpp
 
 代码修改为
 
-```c++
+```cpp
 int main(){
 	return -1;
 }
@@ -76,7 +76,7 @@ int main(){
 
 > 练习1.3: 标准输出上打印Hello,World 
 
-```c++
+```cpp
 #include<iostream>
 
 int main(){
@@ -89,7 +89,7 @@ int main(){
 
 > 练习1.4+1.5：写个两个数的加法和乘法，分开输出
 
-```c++
+```cpp
 #include <iostream>
  
 int main(){
@@ -106,7 +106,7 @@ int main(){
 
 > 练习1.6 解释下面程序段是否合法
 
-```c++
+```cpp
 std::cout << "The sum of " << v1;
 		<< "and " << v2;
 		<< " is " << v1 + v2 << std::endl;
@@ -116,7 +116,7 @@ std::cout << "The sum of " << v1;
 
 ![image-20211214203753306](https://s2.loli.net/2021/12/14/hFcoDUGx2AMq6rI.png)
 
-```c++
+```cpp
 std::cout << "The sum of " << v1
 		<< "and " << v2
 		<< " is " << v1 + v2 << std::endl；
@@ -124,7 +124,7 @@ std::cout << "The sum of " << v1
 
 去除分号即可
 
-```c++
+```cpp
 #include <iostream>
  
 int main(){
@@ -145,7 +145,7 @@ int main(){
 
 > 1.8：指出下列哪些输出语句是合法的
 
-```c++
+```cpp
 std::cout << "/*"; 合法
 std::cout << "*/"; 合法
 std::cout << /* "*/" */; 不合法
@@ -158,7 +158,7 @@ std::cout << /* "*/" /* "/*" */; 合法 相当于输出" /*"
 
 > 1.9：编写程序，使用while循环将50到100的整数相加
 
-```c++
+```cpp
 #include <iostream>
 
 int main(){
@@ -176,7 +176,7 @@ int main(){
 
 > 1.10：除了++运算符将对象的值+1之外，还有递减运算符--实现将其值减少1。编写程序打印10到0之间的整数
 
-```c++
+```cpp
 #include <iostream>
 
 int main(){
@@ -193,7 +193,7 @@ int main(){
 
 > 1.11：编写程序，提示用户输入两个整数，打印出这两个整数所制定的范围内的所有整数
 
-```c++
+```cpp
 #include <iostream>
 
 int main(){
@@ -212,7 +212,7 @@ int main(){
 
 > 1.12：下面的for循环完成了什么功能？sum的终值是多少？
 
-```c++
+```cpp
 int sum = 0;
 for (int i = -100; i<= 100;++i)
 	sum += i;
@@ -226,7 +226,7 @@ for (int i = -100; i<= 100;++i)
 
 练习1.9
 
-```c++
+```cpp
 #include <iostream>
 
 int main(){
@@ -240,7 +240,7 @@ int main(){
 
 练习1.10
 
-```c++
+```cpp
 #include <iostream>
 
 int main(){
@@ -253,7 +253,7 @@ int main(){
 
 练习1.11
 
-```c++
+```cpp
 #include <iostream>
 
 int main(){
@@ -275,12 +275,12 @@ for和while基本可以相互转换
 
 如果循环次数不容易知道，那更适合 while 循环
 
-```c++
+```cpp
 for(;cond_true;)
 while(cond_true)
 ```
 
-```c++
+```cpp
 //可能会报警告conditional expression is constant
 while(1){
 
@@ -313,7 +313,7 @@ for(;;){
 >
 > Ctrl + D 结束输入
 
-```c++
+```cpp
 #include <iostream>
 
 int main(){
@@ -342,7 +342,7 @@ int main(){
 
 应该是练习1.11吧，下面是处理第一个数比第二个数大的情况
 
-```c++
+```cpp
 #include <iostream>
 
 int main(){
@@ -368,7 +368,7 @@ int main(){
 
 `Sales_item.h`
 
-```c++
+```cpp
 /*
  * This file contains code from "C++ Primer, Fifth Edition", by Stanley B.
  * Lippman, Josee Lajoie, and Barbara E. Moo, and is covered under the
@@ -518,14 +518,14 @@ double Sales_item::avg_price() const
 
 `add_item`
 
-```c++
+```cpp
 0-201-78345-X 3 20.00
 0-201-78345-X 2 25.00
 ```
 
 `1.20.cpp`
 
-```c++
+```cpp
 #include <iostream>
 #include "Sales_item.h"
 
@@ -557,7 +557,7 @@ int main(){
 
 还是用`add_item`的数据
 
-```c++
+```cpp
 #include <iostream>
 #include "Sales_item.h"
 
@@ -579,7 +579,7 @@ sum:0-201-78345-X 5 110 22
 
 > 1.22 编写程序，读取多个具有相同 ISBN的 Sales_item 对象，输出所有记录的和
 
-```c++
+```cpp
 #include <iostream>
 #include "Sales_item.h"
 
@@ -626,7 +626,7 @@ int main(){
 
 这个程序实际上可以参考一下 1.6节的书店程序
 
-```c++
+```cpp
 #include <iostream>
 #include "Sales_item.h"
 
