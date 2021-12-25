@@ -19,5 +19,5 @@
 <br>
 
 [GitHub](https://github.com/PokIsemaine/ohmyinterview/tree/master)
-[Get Started](#id=📒内容)
+[Get Started](#📒内容)
 
