@@ -127,7 +127,7 @@ Web项目					:p10,after p8,38d
   * [力扣热题100]()
   * [剑指OFFER]()
   * [Atcoder题解 竞赛向](/各类题解/atcoder.md) 更新中
-  * [Codeforces题解 竞赛向](/各类题解/atcoder.md) 更新中
+  * [Codeforces题解 竞赛向](/各类题解/codeforces.md) 更新中
   * [力扣周赛题解](/各类题解/力扣周赛题解.md) 更新中
 * [个人项目准备]()
   * [muduo网络库 学习笔记]()
