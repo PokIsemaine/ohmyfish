@@ -709,4 +709,188 @@ int main() {
 
 ## 3.4节 练习
 
-### 3.4.
+### 3.4.1节 练习
+
+> 3.21 请使用迭代器重做 3.3.3 节的第一个练习
+
+```cpp
+#include <iostream>
+#include <string>
+#include <vector>
+
+using std::cin;
+using std::cout;
+using std::endl;
+using std::string;
+using std::vector;
+
+int main() {
+	vector<int> v1;              //空
+	vector<int> v2(10);          // 10个元素，每个元素值为0
+	vector<int> v3(10, 42);      // 10个元素，每个元素值为42
+	vector<int> v4{10};          // 1个元素，值为10
+	vector<int> v5{10, 42};      // 2个元素，分别为10、42
+	vector<string> v6{10};       // 10个元素，值为""
+	vector<string> v7{10, "hi"}; // 10个元素，值为"hi"
+
+	for(auto it = v1.begin(); it != v1.end(); ++it){
+		cout << *it << " ";
+	}
+	cout << endl;
+		for(auto it = v2.begin(); it != v2.end(); ++it){
+		cout << *it << " ";
+	}
+	cout << endl;
+	for(auto it = v3.begin(); it != v3.end(); ++it){
+		cout << *it << " ";
+	}
+	cout << endl;
+	for(auto it = v4.begin(); it != v4.end(); ++it){
+		cout << *it << " ";
+	}
+	cout << endl;
+	for(auto it = v5.begin(); it != v5.end(); ++it){
+		cout << *it << " ";
+	}
+	cout << endl;
+	for(auto it = v6.begin(); it != v6.end(); ++it){
+		cout << *it << " ";
+	}
+	cout << endl;
+	for(auto it = v7.begin(); it != v7.end(); ++it){
+		cout << *it << " ";
+	}
+	cout << endl;
+  return 0;
+}
+```
+
+
+
+> 3.22 修改之前那个输出 text 第一段的程序，首先把 text 的 第一段全部改成大写形式，然后再输出它
+
+```cpp
+#include<bits/stdc++.h>
+using namespace std;
+
+int main(){
+	vector<string>text;
+	string sentence;
+	
+	while(getline(cin,sentence)){
+		text.push_back(sentence);
+	}
+	//只改第一段的
+	for(auto it = (*text.begin()).begin(); it != (*text.begin()).end(); ++it){
+		*it=toupper(*it);
+	}
+	
+	
+	for(auto it = text.cbegin(); it != text.cend(); ++ it){
+		cout << (*it) << endl;
+	}
+	
+	return 0;
+}
+```
+
+
+
+> 3.23 编写一段程序，创建一个含有 10 个整数的 vector 对象，然后使用迭代器将所有元素的值变成原来的两倍。输出 vector 对象的内容，检验程序是否正确
+
+​                              
+
+```cpp
+#include<bits/stdc++.h>
+using namespace std;
+
+int main(){
+	
+	vector<int>vec;
+	for(int i = 0; i < 10; ++i)vec.push_back(i); 
+	
+	for(auto it = vec.begin(); it != vec.end(); ++it){
+		*it = 2*(*it);
+	} 
+	
+	for(auto it = vec.cbegin(); it != vec.cend(); ++it){
+		cout << *it << " ";
+	} 
+	
+	return 0;
+}
+```
+
+​        
+
+### 3.4.2节 练习
+
+> 3.24 请使用迭代器重做 3.3.3 节最后一个练习
+
+```cpp
+#include <iostream>
+#include <string>
+#include <vector>
+
+using std::cin;
+using std::cout;
+using std::endl;
+using std::string;
+using std::vector;
+
+int main() {
+	vector<int>vec;
+	int x;
+	while(cin >> x)vec.push_back(x);
+	
+	for(auto it = vec.begin(); it != vec.begin() + ( vec.size()+1)/2; ++it){
+		int a = (*it);
+		int b = *(vec.end()-(it-vec.begin())-1);
+		cout << a+b << " ";
+	}
+	return 0;
+}
+```
+
+
+
+> 3.25 3.3.3 节 划分分数段的程序是使用下标运算符实现的，请利用迭代器改写而该程序并实现完全相同的功能
+
+```cpp
+#include <iostream>
+#include <string>
+#include <vector>
+
+using std::cin;
+using std::cout;
+using std::endl;
+using std::string;
+using std::vector;
+
+int main() {
+	
+	vector<unsigned> scores(11,0);
+	unsigned grade;
+	
+	while(cin >> grade){
+		if(grade <= 100){
+			*(scores.begin()+grade/10)+=1;
+		}
+	}
+	
+	for(auto v:scores){
+		cout << v << endl;
+	}
+	return 0;
+}
+```
+
+
+
+> 3.26 在 100 页的二分搜索程序中，为什么用的是 mid = beg + (end-beg) / 2，而非 mid = (beg + end)/2;
+
+两个迭代器不能相加，要先做差得到 difference_type 的带符号整数,然后相对于 begin 做偏移
+
+
+
+## 3.5节 练习

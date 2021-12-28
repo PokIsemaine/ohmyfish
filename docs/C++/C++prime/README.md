@@ -40,11 +40,11 @@ C++ 学习的**经典著作**
 
 ## 目录
 
-| 章节                      | 笔记                                                        | 练习题解                                          |
-| ------------------------- | ----------------------------------------------------------- | ------------------------------------------------- |
+| 章节                      | 笔记                                                          | 练习题解                                          |
+| ------------------------- |-------------------------------------------------------------| ------------------------------------------------- |
 | 第1章：开始               |                                                             | [Charpter 0x01](/C++/C++prime/Charpter%200x01.md) |
 | 第2章：变量和基本类型     | [Charpter 0x02_note](/C++/C++prime/Charpter%200x02_note.md) | [Charpter 0x02](/C++/C++prime/Charpter%200x02.md) |
-| 第3章：字符串、向量和数组 | [Charpter 0x03_note](/C++/C++prime/Charpter%200x03 note.md) | [Charpter 0x03](/C++/C++prime/Charpter%200x03.md) |
+| 第3章：字符串、向量和数组 | [Charpter 0x03_note](/C++/C++prime/Charpter%200x03_note.md) | [Charpter 0x03](/C++/C++prime/Charpter%200x03.md) |
 | 第4章：表达式             |                                                             | [Charpter 0x04](/C++/C++prime/Charpter%200x04.md) |
 | 第5章：语句               |                                                             | [Charpter 0x05](/C++/C++prime/Charpter%200x05.md) |
 | 第6章：函数               |                                                             | [Charpter 0x06](/C++/C++prime/Charpter%200x06.md) |
