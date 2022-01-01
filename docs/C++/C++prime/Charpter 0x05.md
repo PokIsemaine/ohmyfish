@@ -1,1 +1,1 @@
-<h1 align="center">📔 C++ Prime 0x05 学习笔记</h1>
+<h1 align="center">📔 C++ Prime 0x05 练习题解</h1>
