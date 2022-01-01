@@ -108,7 +108,7 @@ Web项目					:p10,after p8,38d
 * [C++](C++/README.md)
 
   * [C++ Prime 学习笔记](C++/C++prime/README.md) 更新中
-  * [Effictive C++ 学习笔记](C++/EffictiveC++/README.md)更新中
+  * [Effictive C++ 学习笔记](C++/EffectiveC++/README.md)更新中
 * [专业课]()
 	* [数据结构 严蔚敏 课本知识点整理](专业课/数据结构%20严蔚敏/README.md)
 	* [计算机组成原理  唐朔飞 课本知识点整理](/专业课/计算机组成原理%20唐朔飞/README.md) 更新中
