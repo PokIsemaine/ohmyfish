@@ -88,17 +88,16 @@ C++ Prime         :active,    p1, 2021-12-15, 45d
 C++ Effictive     :           p2, after p1, 15d
 
 section ACM训练
-1月恢复训练(CF/AT 套题训练)            :        p3, 2022-1-1, 31d
+1月恢复训练(CF/AT 套题训练)            :active        p3, 2022-1-1, 31d
 2月专题训练(蓝书专题训练)            :           p4, after p3, 28d
 
 section 专业课学习
-计算机组成原理       :       p6, 2022-1-15, 31d
+计算机组成原理       :active       p6, 2022-1-15, 31d
 数据库原理               :       p7, after p6, 20d
 
 section 项目学习
-Django项目补全				:p8,2022-1-10,25d
-muduo网络库源码阅读 		:p9,after p8,38d
-Web项目					:p10,after p8,38d
+Web项目 		:p8,2022-1-15,38d
+muduo 网络库源码阅读					:p9,after p8,20d
 ```
 
 
