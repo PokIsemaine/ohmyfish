@@ -1,4 +1,4 @@
-<h1 align="center">📔 C++ Prime 0x03 练习题解</h1>
+<h1 align="center">📔 C++ Primer 0x03 练习题解</h1>
 
 ## 3.1节 练习
 

@@ -1,4 +1,4 @@
-<h1 align="center">📔 C++ Prime 学习笔记</h1>
+<h1 align="center">📔 C++ Primer 学习笔记</h1>
 
 ![c++ prime 5th 的图像结果](https://s2.loli.net/2021/12/14/VSEWJ5crKF27tm9.jpg)
 

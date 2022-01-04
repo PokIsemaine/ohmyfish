@@ -1,4 +1,4 @@
-<h1 align="center">📔 C++ Prime 0x05 学习笔记</h1>
+<h1 align="center">📔 C++ Primer 0x05 学习笔记</h1>
 
 ## 5.1 简单语句
 

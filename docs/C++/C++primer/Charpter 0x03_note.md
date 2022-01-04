@@ -1,4 +1,4 @@
-<h1 align="center">📔 C++ Prime 0x03 学习笔记</h1>
+<h1 align="center">📔 C++ Primer 0x03 学习笔记</h1>
 
 ## 3.1 命名空间的 using 声明
 

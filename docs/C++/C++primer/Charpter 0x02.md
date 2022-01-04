@@ -1,4 +1,4 @@
-<h1 align="center">📔 C++ Prime 0x02 练习题解</h1>
+<h1 align="center">📔 C++ Primer 0x02 练习题解</h1>
 
 ## 2.1节 练习
 
@@ -6,7 +6,7 @@
 
 > 2.1 类型 int、long、long long 和 short 的区别是什么？无符号类型和带符号类型的区别是什么？ float 和 double 的区别是什么？
 
-![查看源图像](https://tse1-mm.cn.bing.net/th/id/R-C.ed92105fcbcb8f224a4ee2000a36cd87?rik=NwIj%2fjEPdcuKsw&riu=http%3a%2f%2fconglang.github.io%2fimg%2fcpp_primer5_arithmetic_types.png&ehk=2Yezw3g8w2w2H6cDgP%2b7L5T3bMTOrrvCz6MbV8wgaWs%3d&risl=&pid=ImgRaw&r=0)
+![查看源图像](https://s2.loli.net/2022/01/04/tFTplwBnfmxehbS.png)
 
 > 2.2 计算按揭贷款时，对于利率、本金和付款分别应该选择何种数据类型？说明你的理由
 

@@ -1,4 +1,4 @@
-<h1 align="center">📔 C++ Prime 0x06 练习题解</h1>
+<h1 align="center">📔 C++ Primer 0x06 练习题解</h1>
 
 ## 6.1 函数基础
 
