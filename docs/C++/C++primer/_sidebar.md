@@ -1,4 +1,4 @@
-- [概述](/C++/C++prime/README.md)
+- [概述](/C++/C++primer/README.md)
 - 学习笔记
     - [Charpter 0x01](/C++/C++primer/Charpter%200x01_note.md)
     - [Charpter 0x02](/C++/C++primer/Charpter%200x02_note.md)
