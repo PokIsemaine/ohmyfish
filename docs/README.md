@@ -88,16 +88,16 @@ C++ Prime         :active,    p1, 2021-12-15, 45d
 C++ Effictive     :           p2, after p1, 15d
 
 section ACM训练
-1月恢复训练(CF/AT 套题训练)            :active        p3, 2022-1-1, 31d
+1月恢复训练(CF/AT 套题训练)            :active,        p3, 2022-1-1, 31d
 2月专题训练(蓝书专题训练)            :           p4, after p3, 28d
 
 section 专业课学习
-计算机组成原理       :active       p6, 2022-1-15, 31d
+计算机组成原理       :active,       p6, 2022-1-1, 31d
 数据库原理               :       p7, after p6, 20d
 
 section 项目学习
-Web项目 		:p8,2022-1-15,38d
-muduo 网络库源码阅读					:p9,after p8,20d
+Web项目							:  p8,2022-1-15,38d
+muduo 网络库源码阅读					: p9,after p8,20d
 ```
 
 
@@ -105,8 +105,7 @@ muduo 网络库源码阅读					:p9,after p8,20d
 ## 📒内容
 
 * [C++](C++/README.md)
-
-  * [C++ Prime 学习笔记](C++/C++prime/README.md) 更新中
+  * [C++ Prime 学习笔记](C++/C++primer/README.md) 更新中
   * [Effictive C++ 学习笔记](C++/EffectiveC++/README.md)更新中
 * [专业课]()
 	* [数据结构 严蔚敏 课本知识点整理](专业课/数据结构%20严蔚敏/README.md)
@@ -121,15 +120,8 @@ muduo 网络库源码阅读					:p9,after p8,20d
   * [Linux](课堂之外/Linux)
   * [设计模式]()
   * [MySql]()
-  * [Django]()
-* [各类题解]()
-  * [力扣热题100]()
-  * [剑指OFFER]()
-  * [Atcoder题解 竞赛向](/各类题解/atcoder.md) 更新中
-  * [Codeforces题解 竞赛向](/各类题解/codeforces.md) 更新中
-  * [力扣周赛题解](/各类题解/力扣周赛题解.md) 更新中
 * [个人项目准备]()
-  * [muduo网络库 学习笔记]()
+  * [muduo网络库 学习笔记](/项目准备/muduo网络库/README.md)
   * [个人HTTP服务器项目]()
 * [个人杂谈]()
 * [资源汇总(八股文、公司内推、书籍课程)]()
