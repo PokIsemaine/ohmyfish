@@ -1112,3 +1112,5 @@ void Window_mgr::clear(ScreenIndex i){
 * 首先定义 `Window_mgr`类，其中声明`clear`函数但不定义，在`clear`使用Screen的成员之前必须先声明`Screen`
 * 接下来定义`Screen`，包括对于`clear`的友元声明
 * 最后定义`clear`此时它才可以使用`Screen`的成员
+
+## 7.4 类的作用域
