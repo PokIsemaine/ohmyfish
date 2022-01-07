@@ -50,7 +50,7 @@ C++ 学习的**经典著作**
 | 第6章：函数               | [Charpter 0x06_note](/C++/C++primer/Charpter%200x06_note.md) | [Charpter 0x06](/C++/C++primer/Charpter%200x06.md) |
 | 第7章：类                 | [Charpter 0x07_note](/C++/C++primer/Charpter%200x07_note.md) | [Charpter 0x07](/C++/C++primer/Charpter%200x07.md) |
 | 第8章：IO库               | [Charpter 0x08_note](/C++/C++primer/Charpter%200x08_note.md) | [Charpter 0x08](/C++/C++primer/Charpter%200x08.md) |
-| 第9章：顺序容器           |                                                              | [Charpter 0x09](/C++/C++primer/Charpter%200x09.md) |
+| 第9章：顺序容器           | [Charpter 0x09_note](/C++/C++primer/Charpter%200x09_note.md) | [Charpter 0x09](/C++/C++primer/Charpter%200x09.md) |
 | 第10章：泛型算法          |                                                              | [Charpter 0x0A](/C++/C++primer/Charpter%200x0A.md) |
 | 第11章：关联容器          |                                                              | [Charpter 0x0B](/C++/C++primer/Charpter%200x0B.md) |
 | 第12章：动态内存          |                                                              | [Charpter 0x0C](/C++/C++primer/Charpter%200x0C.md) |
