@@ -478,3 +478,223 @@ int main(){
 
 
 > 11.31 编写程序，定义一个作者及其作品的`multimap`。使用`find`在`multimap`中查找一个元素并用`erase`删除它。确保你的程序在元素不在`map` 中时也能正常运行。
+
+```cpp
+#include <cctype>
+#include <map>
+#include <string>
+#include <iostream>
+#include <algorithm>
+#include <vector>
+
+int main(){
+	std::multimap<std::string,std::string>authors{
+		{"A","123"},{"B","456"},{"C","789"},
+		{"A","abc"},{"B","def"},{"C","ghi"}
+	};
+	auto found = authors.find("B");
+	auto count = authors.count("B");
+	while(count){
+		if(found -> second == "def"){
+			authors.erase(found);
+			break;
+		}
+		++found;
+		--count;
+	}
+
+	for(const auto &author:authors){
+		std::cout << author.first << " " << author.second << std::endl;
+	}
+	return 0;
+}
+```
+
+
+
+> 11.32 使用上一题定义的`multimap`编写一个程序，按字典序打印作者列表和他们的作品。
+
+```cpp
+#include <cctype>
+#include <map>
+#include <string>
+#include <iostream>
+#include <algorithm>
+#include <vector>
+#include <set>
+
+int main(){
+	std::multimap<std::string,std::string>authors{
+		{"B","456"},{"C","789"},{"A","abc"},{"A","123"},{"B","def"},{"C","ghi"}
+	};
+	std::map<std::string,std::multiset<std::string>>sorted_authors;
+	
+	for(const auto &author:authors){
+		sorted_authors[author.first].emplace(author.second);
+	}
+	
+	for(const auto &author:sorted_authors){
+		for(const auto &work:author.second){
+			std::cout << author.first << " " << work << std::endl;
+		}
+	}
+	return 0;
+}
+```
+
+
+
+### 11.3.6 一个单词转换的 map
+
+> 11.33 实现你自己版本的单词转换程序。
+
+```cpp
+#include <cctype>
+#include <fstream>
+#include <map>
+#include <string>
+#include <iostream>
+#include <algorithm>
+#include <vector>
+#include <sstream>
+
+std::map<std::string,std::string> buildMap(std::ifstream &map_file){
+	std::map<std::string,std::string>trans_map;
+	std::string key,value;
+	while(map_file >> key && getline(map_file,value)){
+		if(value.size()>1)
+			trans_map[key] = value.substr(1);
+		else
+			throw std::runtime_error("no rule for " + key);
+	}
+	return trans_map;
+}
+
+const std::string& transform(const std::string &s,const std::map<std::string,std::string>& m){
+	auto map_it = m.find(s);
+	if(map_it != m.cend())return map_it ->second;
+	return s;
+}
+
+void word_transform(std::ifstream &map_file,std::ifstream &input){
+	auto trans_map = buildMap(map_file);
+	for(std::string text;std::getline(input,text);){
+		std::istringstream stream(text);
+		bool firstword = true;
+		for(std::string word;stream >> word;){
+			if(firstword)
+				firstword = false;
+			else 
+				std::cout << " ";
+			std::cout << transform(word,trans_map);
+		}
+		std::cout << std::endl;
+	}
+}
+
+int main(int argc,char **argv){
+	std::ifstream ifs_map(argv[1]),ifs_content(argv[2]);
+	if(ifs_map && ifs_content)word_transform(ifs_map, ifs_content);
+	else std::cerr << "cant't find the documents." << std::endl;
+
+	return 0;
+}
+```
+
+
+
+> 11.34 如果你将`transform` 函数中的`find`替换为下标运算符，会发生什么情况？
+
+如果关键字不在容器中，会往容器中添加一个元素
+
+
+
+> 11.35 在`buildMap`中，如果进行如下改写，会有什么效果？
+
+```cpp
+trans_map[key] = value.substr(1);//关键字多次出现，下标保留最后一次
+//改为
+trans_map.insert({key, value.substr(1)});//关键字多次出现，insert保留第一次
+```
+
+
+
+> 11.36 我们的程序并没检查输入文件的合法性。特别是，它假定转换规则文件中的规则都是有意义的。如果文件中的某一行包含一个关键字、一个空格，然后就结束了，会发生什么？预测程序的行为并进行验证，再与你的程序进行比较。
+
+```cpp
+std::map<std::string,std::string> buildMap(std::ifstream &map_file){
+	std::map<std::string,std::string>trans_map;
+	std::string key,value;
+	while(map_file >> key && getline(map_file,value)){
+		if(value.size()>1)
+			trans_map[key] = value.substr(1);
+		else
+			throw std::runtime_error("no rule for " + key);//抛出runtime_error
+	}
+	return trans_map;
+}
+```
+
+
+
+## 11.4 无序容器
+
+> 11.37 一个无序容器与其有序版本相比有何优势？有序版本有何优势？
+
+无序容器通过`hash`函数创建，性能更好
+
+有序容器可以保持元素有序
+
+
+
+> 11.38 用 `unordered_map` 重写单词计数程序和单词转换程序。
+
+```cpp
+#include <cctype>
+#include <fstream>
+#include <map>
+#include <string>
+#include <iostream>
+#include <algorithm>
+#include <vector>
+#include <sstream>
+#include <unordered_map>
+
+std::unordered_map<std::string,std::string> buildMap(std::ifstream &map_file){
+	std::unordered_map<std::string,std::string>trans_map;
+	for(std::string key,value;map_file >> key && getline(map_file,value);){
+		if(value.size()>1) trans_map[key] = value.substr(1);
+		else throw std::runtime_error("no rule for " + key);
+	}
+	return trans_map;
+}
+
+const std::string& transform(const std::string &s,const std::unordered_map<std::string,std::string>& m){
+	auto map_it = m.find(s);
+	if(map_it != m.cend())return map_it ->second;
+	return s;
+}
+
+void word_transform(std::ifstream &map_file,std::ifstream &input){
+	auto trans_map = buildMap(map_file);
+	for(std::string text;std::getline(input,text);){
+		std::istringstream stream(text);
+		bool firstword = true;
+		for(std::string word;stream >> word;){
+			if(firstword) firstword = false;
+			else std::cout << " ";
+			std::cout << transform(word,trans_map);
+		}
+		std::cout << std::endl;
+	}
+}
+
+int main(int argc,char **argv){
+	std::ifstream ifs_map(argv[1]),ifs_content(argv[2]);
+	if(ifs_map && ifs_content)word_transform(ifs_map, ifs_content);
+	else std::cerr << "cant't find the documents." << std::endl;
+
+	return 0;
+}
+```
+

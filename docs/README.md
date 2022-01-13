@@ -6,51 +6,18 @@
     </div> 
 
 
-
 [![](https://img.shields.io/badge/OS-Arch%20Linux-33aadd?style=flat-square&logo=arch-linux&logoColor=ffffff)](https://www.archlinux.org/) 
 ![info](https://img.shields.io/badge/Languae-C%2B%2B-green)![](https://img.shields.io/badge/Languae-markdown-orange)
 ![](https://img.shields.io/badge/Tools-Typora-blue)
 
+## 更新 2022/1/13
 
+* 因为用的老域名，备案申请情况和现在有些不同，所以暂时关闭评论区
+* 去除了一些个人信息，拿工具自查了一下个人信息泄漏，还是比较严重的
+* 删减不必要的东西（存其他地方了），减少杂乱信息
+* 更新路线
 
-## 🧒关于我
-
-就读于 NEFU 2020级 软件工程  的一名普通本科生
-
-日常摸鱼，只学一些自己感兴趣的玩意
-
-技能点：
-
-C/C++：只会拿来刷刷题
-
-Python：调包侠
-
-Linux：使用archlinux系统作为日常工作系统，掌握一定的Linux系统编程知识，习惯终端命令行
-
-HTML,  CSS, markdown：主要用于日常编写文档
-
-git, vim, makefile：只会基础操作
-
-~~掌握基础数据结构与算法设计能力~~（会使用暴力算法瞎搞）
-
-Email：851892190@qq.com
-
-
-
-## 📝做什么
-
-* 记录C++服务器技术方向的学习笔记
-* 收集相关岗位面试资料
-* 为本校同学整理专业课考试复习资料，减轻阶段考压力
-
-
-
-## ❓为什么做这个
-
-* 学校软件工程培养方案主要培养Java后端和Web前端方向人才，C++服务器开发方向缺少路线指引，就业难度大
-* 找份好工作，为家庭提供幸福生活的物质保障
-* 结交一些相关专业的朋友，扩大个人影响力
-* 锻炼专业技能的同时积累各方面资源
+近期主要更新 C++ Primer 5th
 
 
 
@@ -74,56 +41,29 @@ IDE/编辑器：Clion、Vscode、vim
 
 g++ (GCC) 11.1.0
 
-
-
-## 我的进度
-
-```mermaid
-gantt
-dateFormat  YYYY-MM-DD
-title 鱼竿钓鱼干的寒假计划
-
-section C++ 学习 
-C++ Prime         :active,    p1, 2021-12-15, 45d
-C++ Effictive     :           p2, after p1, 15d
-
-section ACM训练
-1月恢复训练(CF/AT 套题训练)            :active,        p3, 2022-1-1, 31d
-2月专题训练(蓝书专题训练)            :           p4, after p3, 28d
-
-section 专业课学习
-计算机组成原理       :active,       p6, 2022-1-1, 31d
-数据库原理               :       p7, after p6, 20d
-
-section 项目学习
-Web项目							:  p8,2022-1-15,38d
-muduo 网络库源码阅读					: p9,after p8,20d
-```
-
-
+clang version 13.0.0
 
 ## 📒内容
 
+* [路线](路线.md)
 * [C++](C++/README.md)
   * [C++ Prime 学习笔记](C++/C++primer/README.md) 更新中
-  * [Effictive C++ 学习笔记](C++/EffectiveC++/README.md)更新中
+  * [Effictive C++ 学习笔记](C++/EffectiveC++/README.md)
 * [专业课]()
 	* [数据结构 严蔚敏 课本知识点整理](专业课/数据结构%20严蔚敏/README.md)
-	* [计算机组成原理  唐朔飞 课本知识点整理](/专业课/计算机组成原理%20唐朔飞/README.md) 更新中
+	* [计算机组成原理  唐朔飞 课本知识点整理](/专业课/计算机组成原理%20唐朔飞/README.md) 
 	* [操作系统 课本知识点整理]()
 	* [数据库原理 课本知识点整理]()
 	* [计算机网络 课本知识点整理]()
 
 
 * [课堂之外]()
-  * [操作系统实战45讲](课堂之外/操作系统实战45讲)
   * [Linux](课堂之外/Linux)
   * [设计模式]()
   * [MySql]()
 * [个人项目准备]()
   * [muduo网络库 学习笔记](/项目准备/muduo网络库/README.md)
   * [个人HTTP服务器项目]()
-* [个人杂谈]()
 * [资源汇总(八股文、公司内推、书籍课程)]()
 
 

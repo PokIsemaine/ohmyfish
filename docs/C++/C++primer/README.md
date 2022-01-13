@@ -53,8 +53,8 @@ C++ 学习的**经典著作**
 | 第9章：顺序容器           | [Charpter 0x09_note](/C++/C++primer/Charpter%200x09_note.md) | [Charpter 0x09](/C++/C++primer/Charpter%200x09.md) |
 | 第10章：泛型算法          | [Charpter 0x0A_note](/C++/C++primer/Charpter%200x0A_note.md) | [Charpter 0x0A](/C++/C++primer/Charpter%200x0A.md) |
 | 第11章：关联容器          | [Charpter 0x0B_note](/C++/C++primer/Charpter%200x0B_note.md) | [Charpter 0x0B](/C++/C++primer/Charpter%200x0B.md) |
-| 第12章：动态内存          |                                                              | [Charpter 0x0C](/C++/C++primer/Charpter%200x0C.md) |
-| 第13章：拷贝控制          |                                                              | [Charpter 0x0D](/C++/C++primer/Charpter%200x0D.md) |
+| 第12章：动态内存          | [Charpter 0x0C_note](/C++/C++primer/Charpter%200x0C_note.md) | [Charpter 0x0C](/C++/C++primer/Charpter%200x0C.md) |
+| 第13章：拷贝控制          | [Charpter 0x0D_note](/C++/C++primer/Charpter%200x0D_note.md) | [Charpter 0x0D](/C++/C++primer/Charpter%200x0D.md) |
 | 第14章：重载与类型转换    |                                                              | [Charpter 0x0E](/C++/C++primer/Charpter%200x0E.md) |
 |                           |                                                              | [Charpter 0x0F](/C++/C++primer/Charpter%200x0F.md) |
 
