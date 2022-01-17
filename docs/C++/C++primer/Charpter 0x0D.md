@@ -901,3 +901,1010 @@ int main(){
 
 > 13.39 编写你自己版本的 `StrVec`，包括自己版本的 `reserve`、`capacity` 和`resize`。
 
+参考了`applenob`的答案，感觉有几处代码的重构简化写的很不错（比如提炼了`copy_n_move`)
+
+头文件
+
+```cpp
+#ifndef StrVec_H
+#define StrVec_H
+
+#include <cstdlib>
+#include <string>
+#include <iostream>
+#include <vector>
+#include <memory>
+#include <utility>
+#include <initializer_list>
+
+class StrVec{
+public:
+	StrVec():elements(nullptr),first_free(nullptr),cap(nullptr){}
+	StrVec(const StrVec&);
+	StrVec& operator=(const StrVec&);
+	~StrVec();
+
+public:
+	void push_back(const std::string&);
+	size_t size()const{return first_free-elements;}
+	size_t capacity()const{return cap-elements;}
+	std::string* begin()const{return elements;}
+	std::string* end()const{return first_free;}
+
+	void reserve(size_t new_cap);
+	void resize(size_t count);
+	void resize(size_t count,const std::string& s);
+private:
+	static std::allocator<std::string>alloc;
+	void chk_n_alloc(){
+		if (size() == capacity())reallocate();
+	}
+	std::pair<std::string*,std::string*>alloc_n_copy(const std::string*,const std::string*);
+	void free();
+	void reallocate();
+	void alloc_n_move(size_t new_cap);
+private:
+	std::string *elements;
+	std::string *first_free;
+	std::string *cap;
+};
+
+#endif
+```
+
+实现文件
+
+```cpp
+
+#include "StrVec.hpp"
+#include <memory>
+#include <string>
+
+void StrVec::push_back(const std::string& s){
+	chk_n_alloc();
+	alloc.construct(first_free++,s);
+}
+
+std::pair<std::string*,std::string*>
+StrVec::alloc_n_copy (const std::string*b,const std::string*e){
+	auto data = alloc.allocate(e-b);
+	return {data,std::uninitialized_copy(b, e,data)};
+}
+
+void StrVec::free(){
+	if(elements){
+		for(auto p = first_free; p != elements;)
+			alloc.destroy(--p);
+		alloc.deallocate(elements,cap-elements);
+	}
+}
+
+StrVec::StrVec(const StrVec &s){
+	auto newdata = alloc_n_copy(s.begin(), s.end());
+	elements = newdata.first;
+	first_free = cap = newdata.second;
+}
+
+StrVec::~StrVec(){free();}
+
+StrVec& StrVec::operator=(const StrVec &rhs){
+	auto data = alloc_n_copy(rhs.begin(),rhs.end());
+	free();
+	elements = data.first;
+	first_free = cap = data.second;
+	return *this;
+}
+
+void StrVec::alloc_n_move (size_t new_cap){
+	auto newdata = alloc.allocate(new_cap);
+	auto dest = newdata;
+	auto elem = elements;
+	for(size_t i = 0 ;i != size();++i)
+		alloc.construct(dest++,std::move(*elem++));
+	free();
+	elements = newdata;
+	first_free = dest;
+	cap = elements + new_cap;
+}
+void StrVec::reallocate (){
+	auto newcapacity = size()?2*size():1;
+	alloc_n_move(newcapacity);
+}
+
+void StrVec::reserve(size_t new_cap){
+	if(new_cap <= capacity())return;
+	alloc_n_move(new_cap);
+}
+
+void StrVec::resize(size_t count){
+	resize(count,std::string());
+}
+
+void StrVec::resize(size_t count,const std::string& s){
+	if(count > size()){
+		if(count > capacity())reserve(count*2);
+		for(size_t i = size(); i != count;++i){
+			alloc.construct(first_free++,s);
+		}
+	}else if(count <size()){
+		while(first_free != elements + count)
+			alloc.destroy(--first_free);
+	}
+}
+
+
+```
+
+
+
+> 13.40 为你的 `StrVec` 类添加一个构造函数，它接受一个 `initializer_list<string>` 参数。
+
+```cpp
+#ifndef StrVec_H
+#define StrVec_H
+
+#include <cstdlib>
+#include <string>
+#include <iostream>
+#include <vector>
+#include <memory>
+#include <utility>
+#include <initializer_list>
+
+class StrVec{
+public:
+	StrVec():elements(nullptr),first_free(nullptr),cap(nullptr){}
+	StrVec(const StrVec&);
+	StrVec& operator=(const StrVec&);
+	~StrVec();
+	StrVec(std::initializer_list<std::string>);
+
+public:
+	void push_back(const std::string&);
+	size_t size()const{return first_free-elements;}
+	size_t capacity()const{return cap-elements;}
+	std::string* begin()const{return elements;}
+	std::string* end()const{return first_free;}
+
+	void reserve(size_t new_cap);
+	void resize(size_t count);
+	void resize(size_t count,const std::string& s);
+private:
+	static std::allocator<std::string>alloc;
+	void chk_n_alloc(){
+		if (size() == capacity())reallocate();
+	}
+	std::pair<std::string*,std::string*>alloc_n_copy(const std::string*,const std::string*);
+	void free();
+	void reallocate();
+	void alloc_n_move(size_t new_cap);
+	void range_initialize(const std::string *first, const std::string *last);
+
+private:
+	std::string *elements;
+	std::string *first_free;
+	std::string *cap;
+};
+
+#endif
+```
+
+
+
+```cpp
+#include "StrVec.hpp"
+#include <memory>
+#include <string>
+
+void StrVec::push_back(const std::string& s){
+	chk_n_alloc();
+	alloc.construct(first_free++,s);
+}
+
+std::pair<std::string*,std::string*>
+StrVec::alloc_n_copy (const std::string*b,const std::string*e){
+	auto data = alloc.allocate(e-b);
+	return {data,std::uninitialized_copy(b, e,data)};
+}
+
+void StrVec::free(){
+	if(elements){
+		for(auto p = first_free; p != elements;)
+			alloc.destroy(--p);
+		alloc.deallocate(elements,cap-elements);
+	}
+}
+
+StrVec::StrVec(const StrVec &s){
+	auto newdata = alloc_n_copy(s.begin(), s.end());
+	elements = newdata.first;
+	first_free = cap = newdata.second;
+}
+
+StrVec::~StrVec(){free();}
+
+StrVec& StrVec::operator=(const StrVec &rhs){
+	auto data = alloc_n_copy(rhs.begin(),rhs.end());
+	free();
+	elements = data.first;
+	first_free = cap = data.second;
+	return *this;
+}
+
+void StrVec::range_initialize(const std::string *first, const std::string *last){
+    auto newdata = alloc_n_copy(first, last);
+    elements = newdata.first;
+    first_free = cap = newdata.second;
+}
+
+StrVec::StrVec(std::initializer_list<std::string> il)
+{
+    range_initialize(il.begin(), il.end());
+}
+
+void StrVec::alloc_n_move (size_t new_cap){
+	auto newdata = alloc.allocate(new_cap);
+	auto dest = newdata;
+	auto elem = elements;
+	for(size_t i = 0 ;i != size();++i)
+		alloc.construct(dest++,std::move(*elem++));
+	free();
+	elements = newdata;
+	first_free = dest;
+	cap = elements + new_cap;
+}
+void StrVec::reallocate (){
+	auto newcapacity = size()?2*size():1;
+	alloc_n_move(newcapacity);
+}
+
+void StrVec::reserve(size_t new_cap){
+	if(new_cap <= capacity())return;
+	alloc_n_move(new_cap);
+}
+
+void StrVec::resize(size_t count){
+	resize(count,std::string());
+}
+
+void StrVec::resize(size_t count,const std::string& s){
+	if(count > size()){
+		if(count > capacity())reserve(count*2);
+		for(size_t i = size(); i != count;++i){
+			alloc.construct(first_free++,s);
+		}
+	}else if(count <size()){
+		while(first_free != elements + count)
+			alloc.destroy(--first_free);
+	}
+}
+```
+
+
+
+> 13.41 在 `push_back` 中，我们为什么在 `construct` 调用中使用后置递增运算？如果使用前置递增运算的话，会发生什么？
+
+会跳过一个空位置
+
+
+
+
+
+> 13.42 在你的 `TextQuery` 和 `QueryResult` 类中用你的 `StrVec` 类代替`vector<string>`，以此来测试你的 `StrVec` 类。
+
+
+
+> 13.43 重写 `free` 成员，用 `for_each` 和 `lambda` 来代替 `for` 循环 `destroy` 元素。你更倾向于哪种实现，为什么？
+
+```cpp
+void StrVec::free(){
+	if(elements){
+        for_each(elements,first_free,[this](std::string& s){alloc.destroy(&s);})
+		alloc.deallocate(elements,cap-elements);
+	}
+}
+
+```
+
+`for_each`+`lambda`更简洁,而且可以避免越界
+
+
+
+> 13.44 编写标准库 `string` 类的简化版本，命名为 `String`。你的类应该至少有一个默认构造函数和一个接受 C 风格字符串指针参数的构造函数。使用 `allocator` 为你的 `String`类分配所需内存。
+
+参考书上的`StrVec`和`applenon`
+
+`MyString.hpp`
+
+```cpp
+#ifndef MyString_H
+#define MyString_H
+
+#include <memory>
+#include <algorithm>
+#include <iterator>
+class MyString{
+public:
+	MyString():MyString(""){}
+	MyString(const char*);
+	MyString(const MyString&);
+	MyString& operator=(const MyString&);
+	~MyString();
+public:
+	size_t size()const{return ends-elements;}
+	const char* begin()const{return elements;}
+	const char* end()const{return ends;}
+
+private:
+	std::allocator<char> alloc;
+	std::pair<char*,char*>alloc_n_copy(const char*,const char*);
+	void free();
+	void range_initializer(const char *first, const char *last);
+
+private:
+	char* elements;
+	char* ends;
+};
+
+
+#endif
+```
+
+`MyString.cpp`
+
+```cpp
+#include "MyString.hpp"
+
+std::pair<char*,char*>
+MyString::alloc_n_copy(const char*b,const char*e){
+	auto data = alloc.allocate(e-b);
+	return {data,std::uninitialized_copy(b, e,data)};
+}
+
+void MyString::free(){
+	if(elements){
+		std::for_each(elements,ends,[this](char &c){alloc.destroy(&c);});
+		alloc.deallocate(elements,ends-elements);
+	}
+}
+
+void MyString::range_initializer(const char *first, const char *last){
+    auto newstr = alloc_n_copy(first, last);
+    elements = newstr.first;
+    ends = newstr.second;
+}
+MyString::MyString(const char* s){
+	char * sl = const_cast<char*>(s);
+	while(*sl)
+		++sl;
+	range_initializer(s,++sl);
+}
+
+MyString::~MyString(){free();}
+
+MyString& MyString::operator=(const MyString &rhs){
+	auto data = alloc_n_copy(rhs.begin(),rhs.end());
+	free();
+	elements = data.first;
+	ends =  data.second;
+	std::cout << "call MyString& MyString::operator=(const MyString &rhs)" << std::endl;
+	return *this;
+}
+
+MyString::MyString(const MyString& ms){
+	range_initializer(ms.begin(),ms.end());
+	std::cout << "MyString::MyString(const MyString& ms)" << std::endl;
+}
+
+```
+
+`Test.cpp`
+
+```cpp
+#include <memory>
+#include <vector>
+#include <iostream>
+#include "MyString.hpp"
+
+void foo(MyString x)
+{
+    std::cout << x.begin() << std::endl;
+}
+
+void bar(const MyString& x)
+{
+    std::cout << x.begin() << std::endl;
+}
+
+MyString baz()
+{
+    MyString ret("world");
+    return ret;
+}
+
+int main()
+{
+    char text[] = "world";
+
+    MyString s0;
+    MyString s1("hello");
+    MyString s2(s0);
+    MyString s3 = s1;
+    MyString s4(text);
+    s2 = s1;
+
+    foo(s1);
+    bar(s1);
+    foo("temporary");
+    bar("temporary");
+    MyString s5 = baz();
+
+    std::vector<MyString> svec;
+    svec.reserve(8);
+    svec.push_back(s0);
+    svec.push_back(s1);
+    svec.push_back(s2);
+    svec.push_back(s3);
+    svec.push_back(s4);
+    svec.push_back(s5);
+    svec.push_back(baz());
+    svec.push_back("good job");
+
+    for (const auto &s : svec) {
+        std::cout << s.begin() << std::endl;
+    }
+}
+```
+
+`makefile`
+
+```makefile
+main:Test.o MyString.o
+	clang++ Test.o MyString.o -o main -g
+Test.o:Test.cpp
+	clang++ -c Test.cpp -o Test.o
+MyString.o:MyString.cpp MyString.hpp
+	clang++ -c MyString.cpp -o MyString.o
+clean:
+	rm *.o main
+```
+
+
+
+## 13.6 对象移动
+
+### 13.6.1 右值引用
+
+> 13.45 解释左值引用和右值引用的区别？
+
+左值引用：一般引用
+
+右值引用：绑定到右值上的引用
+
+* 右值引用必须绑定在右值（要求转换的表达式，字面常量，返回右值的表达式），不能直接绑定到一个左值上，通过`&&`而不是`&`来获得
+	* 返回左值引用的函数，连通赋值、下标、解引用和前置递增/递减运算符，都是返回左值表达式的例子
+	* 返回非引用类型的函数，连通算术、关系、位以及后值递增/递减运算符，都生成右值。不能将左值引用绑定到这类表达式上，但可以将一个`cosnt`的左值引用或者一个右值引用绑定到这类表达式上
+* 右值引用只能绑定到一个将要销毁的对象上（就好比打游戏，对面有武器，对面要死了你才可以去捡武器）
+* 左值持久：对象的身份，具有持久的状态
+* 右值短暂：对象的值，要么是字面常量，要么是表达式求值过程中创建的临时对象
+
+
+
+> 13.46 什么类型的引用可以绑定到下面的初始化器上？
+
+```cpp
+int f();
+vector<int> vi(100);
+int? r1 = f();//右值引用，返回非引用类型的函数
+int? r2 = vi[0];//左值引用，下标
+int? r3 = r1;//左值引用，变量是左值，即使这个变量是右值引用（右值引用不等于右值）。
+int? r4 = vi[0] * f();//右值引用，返回右值的表达式（右值短暂临时）
+```
+
+
+
+> 13.47 对你在练习13.44中定义的 `String`类，为它的拷贝构造函数和拷贝赋值运算符添加一条语句，在每次函数执行时打印一条信息。
+>
+> 13.48 定义一个`vector<String>` 并在其上多次调用 `push_back`。运行你的程序，并观察 `String` 被拷贝了多少次。
+
+见练习`13.44`
+
+
+
+### 13.6.2 移动构造函数和移动赋值运算符
+
+> 13.49 为你的 `StrVec`、`String` 和 `Message` 类添加一个移动构造函数和一个移动赋值运算符。
+
+以`String`为例
+
+```cpp
+#ifndef MyString_H
+#define MyString_H
+
+#include <memory>
+#include <algorithm>
+#include <iterator>
+#include <iostream>
+
+class MyString{
+public:
+	MyString():MyString(""){}
+	MyString(const char*);
+	MyString(const MyString&);
+	MyString& operator=(const MyString&);
+	MyString(MyString &&) noexcept;//移动构造函数
+	MyString& operator=(MyString &&)noexcept;//移动赋值函数
+	~MyString();
+public:
+	size_t size()const{return ends-elements;}
+	const char* begin()const{return elements;}
+	const char* end()const{return ends;}
+
+private:
+	std::allocator<char> alloc;
+	std::pair<char*,char*>alloc_n_copy(const char*,const char*);
+	void free();
+	void range_initializer(const char *first, const char *last);
+
+private:
+	char* elements;
+	char* ends;
+};
+
+
+#endif
+```
+
+`MyString.cpp`
+
+```cpp
+#include "MyString.hpp"
+
+std::pair<char*,char*>
+MyString::alloc_n_copy(const char*b,const char*e){
+	auto data = alloc.allocate(e-b);
+	return {data,std::uninitialized_copy(b, e,data)};
+}
+
+void MyString::free(){
+	if(elements){
+		std::for_each(elements,ends,[this](char &c){alloc.destroy(&c);});
+		alloc.deallocate(elements,ends-elements);
+	}
+}
+
+void MyString::range_initializer(const char *first, const char *last){
+    auto newstr = alloc_n_copy(first, last);
+    elements = newstr.first;
+    ends = newstr.second;
+	std::cout << "void MyString::range_initializer(const char *first, const char *last)" << std::endl;
+}
+MyString::MyString(const char* s){
+	char * sl = const_cast<char*>(s);
+	while(*sl)
+		++sl;
+	range_initializer(s,++sl);
+}
+
+MyString::~MyString(){free();}
+
+MyString& MyString::operator=(const MyString &rhs){
+	auto data = alloc_n_copy(rhs.begin(),rhs.end());
+	free();
+	elements = data.first;
+	ends =  data.second;
+	std::cout << "call MyString& MyString::operator=(const MyString &rhs)" << std::endl;
+	return *this;
+}
+
+MyString::MyString(const MyString& ms){
+	range_initializer(ms.begin(),ms.end());
+	std::cout << "MyString::MyString(const MyString& ms)" << std::endl;
+}
+MyString::MyString(MyString && ms) noexcept:elements(ms.elements),ends(ms.ends){
+	std::cout << "MyString::MyString(MyString && ms)" << std::endl;
+	ms.elements = ms.ends = nullptr;
+}
+
+MyString& MyString::operator=(MyString && ms)noexcept{
+	if(this != &ms){
+		free();
+		elements = ms.elements;
+		ends = ms.ends;
+		ms.elements = ms.ends = nullptr;
+	}
+	std::cout << "MyString& MyString::operator=(MyString && ms)" << std::endl;
+	return *this;
+}
+
+
+
+
+```
+
+
+
+`Test.cpp`
+
+```cpp
+#include <memory>
+#include <vector>
+#include <iostream>
+#include "MyString.hpp"
+
+void foo(MyString x)
+{
+    std::cout << x.begin() << std::endl;
+}
+
+void bar(const MyString& x)
+{
+    std::cout << x.begin() << std::endl;
+}
+
+MyString baz()
+{
+    MyString ret("world");
+    return ret;
+}
+
+int main(){
+//参考了 https://blog.csdn.net/qq_24739717/article/details/104473034#t48
+    char text[] = "world";
+	std::cout << "---------------定义-----------------" << std::endl;
+    MyString s0;
+    MyString s1("hello");
+    MyString s2(s0);
+    MyString s3 = s1;
+    MyString s4(text);
+    s2 = s1;
+
+	std::cout << "---------------调用-----------------" << std::endl;
+    foo(s1);
+    bar(s1);
+    foo("temporary");
+    bar("temporary");
+    MyString s5 = baz();
+	std::cout << "---------------添加-----------------" << std::endl;
+    std::vector<MyString> svec;
+    svec.reserve(8);
+    svec.push_back(s0);
+    svec.push_back(s1);
+    svec.push_back(s2);
+    svec.push_back(s3);
+    svec.push_back(s4);
+    svec.push_back(s5);
+    svec.push_back(baz());//避免拷贝
+    svec.push_back("good job");//避免拷贝
+	std::cout << "---------------输出-----------------" << std::endl;
+    for (const auto &s : svec) {
+        std::cout << s.begin() << std::endl;
+    }
+}
+```
+
+
+
+> 13.50 在你的 `String` 类的移动操作中添加打印语句，并重新运行13.6.1节的练习13.48中的程序，它使用了一个`vector<String>`，观察什么时候会避免拷贝。
+
+```cpp
+---------------定义-----------------
+void MyString::range_initializer(const char *first, const char *last)
+void MyString::range_initializer(const char *first, const char *last)
+void MyString::range_initializer(const char *first, const char *last)
+MyString::MyString(const MyString& ms)
+void MyString::range_initializer(const char *first, const char *last)
+MyString::MyString(const MyString& ms)
+void MyString::range_initializer(const char *first, const char *last)
+call MyString& MyString::operator=(const MyString &rhs)
+---------------调用-----------------
+void MyString::range_initializer(const char *first, const char *last)
+MyString::MyString(const MyString& ms)
+hello
+hello
+void MyString::range_initializer(const char *first, const char *last)
+temporary
+void MyString::range_initializer(const char *first, const char *last)
+temporary
+void MyString::range_initializer(const char *first, const char *last)
+---------------添加-----------------
+void MyString::range_initializer(const char *first, const char *last)
+MyString::MyString(const MyString& ms)
+void MyString::range_initializer(const char *first, const char *last)
+MyString::MyString(const MyString& ms)
+void MyString::range_initializer(const char *first, const char *last)
+MyString::MyString(const MyString& ms)
+void MyString::range_initializer(const char *first, const char *last)
+MyString::MyString(const MyString& ms)
+void MyString::range_initializer(const char *first, const char *last)
+MyString::MyString(const MyString& ms)
+void MyString::range_initializer(const char *first, const char *last)
+MyString::MyString(const MyString& ms)
+void MyString::range_initializer(const char *first, const char *last)
+MyString::MyString(MyString && ms)
+void MyString::range_initializer(const char *first, const char *last)
+MyString::MyString(MyString && ms)
+---------------输出-----------------
+
+hello
+hello
+hello
+world
+world
+world
+good job
+```
+
+
+
+> 13.51 虽然 `unique_ptr` 不能拷贝，但我们在12.1.5节中编写了一个 `clone` 函数，它以值的方式返回一个 `unique_ptr`。解释为什么函数是合法的，以及为什么它能正确工作。
+
+我们可以拷贝或赋值一个将要被销毁的`unique_ptr`最常见的例子是从函数返回一个`unique_ptr`
+
+实际上是调用了移动构造函数或移动赋值运算符接管此函数中`unique_ptr`的所有权
+
+
+
+> 13.52 详细解释第478页中的 `HasPtr` 对象的赋值发生了什么？特别是，一步一步描述 `hp`、`hp2` 以及 `HasPtr` 的赋值运算符中的参数 `rhs` 的值发生了什么变化。
+
+左值拷贝，右值移动
+
+`hp = hp2;`
+
+* `hp2`是个左值，所以参数传递时通过拷贝构造函数来拷贝
+* `rhs`为`hp2`的副本，两者独立，`string`内容相同。赋值结束后`rhs`被销毁
+
+
+
+`hp = std::move(hp2);`
+
+* `std::move`将一个右值引用绑定到`hp2`上，使用移动构造函数
+* `rhs`接管`hp2`所有权
+
+
+
+不管使用的是拷贝构造还是移动构造，赋值运算符的函数体都会`swap`两个运算对象的状态，交换两个对象指针后，`rhs`中的指针指向原来左侧运算对象所用的`string`。当`rhs`离开作用域时，这个`string`将被销毁
+
+
+
+> 13.53 从底层效率的角度看，`HasPtr` 的赋值运算符并不理想，解释为什么？为 `HasPtr` 实现一个拷贝赋值运算符和一个移动赋值运算符，并比较你的新的移动赋值运算符中执行的操作和拷贝并交换版本中的执行的操作。
+
+编译相关参数
+
+```cpp
+clang++ -Wall -std=c++14 -O2  -fsanitize=undefined,address
+```
+
+```cpp
+#include <string>
+#include <iostream>
+#include <ctime>
+
+class HasPtr {
+public:
+	friend void swap(HasPtr&, HasPtr&);
+public:
+	HasPtr(const std::string& s = std::string()):ps(new std::string(s)), i(0) { }//默认构造
+	HasPtr(const HasPtr& hp):ps(new std::string(*hp.ps)),i(hp.i){}//拷贝构造
+	HasPtr& operator=(HasPtr rhs){//拷贝赋值 swap版本
+		swap(*this,rhs);
+		return *this;
+	}
+	HasPtr(HasPtr && hp)noexcept:ps(hp.ps),i(hp.i){//移动构造
+		hp.ps = nullptr;
+	}
+
+	~HasPtr() {delete ps;} 
+private:
+	std::string *ps;
+	int i;
+};
+
+inline 
+void swap(HasPtr& lhs, HasPtr& rhs){
+	using std::swap;
+	swap(lhs.ps, rhs.ps);
+	swap(lhs.i,rhs.i);
+}
+
+int main(){
+	HasPtr hp1("test1"),hp2("test2");
+	clock_t start = clock();
+	hp1 = hp2;
+	clock_t end = clock();
+	std::cout << end - start << std::endl;
+	return 0;
+}
+```
+
+
+
+```cpp
+#include <string>
+#include <iostream>
+#include <ctime>
+
+class HasPtr {
+public:
+	friend void swap(HasPtr&, HasPtr&);
+public:
+	HasPtr(const std::string& s = std::string()):ps(new std::string(s)), i(0) { }//默认构造
+	HasPtr(const HasPtr& hp):ps(new std::string(*hp.ps)),i(hp.i){}//拷贝构造
+	HasPtr(HasPtr && hp)noexcept:ps(hp.ps),i(hp.i){//移动构造
+		hp.ps = nullptr;
+	}
+	HasPtr& operator=(const HasPtr& rhs){//拷贝赋值
+		auto newp = new std::string(*rhs.ps);
+		delete ps;
+		ps = newp;
+		i = rhs.i;
+		return *this;
+	}
+	HasPtr& operator=(HasPtr&& rhs)noexcept{
+		if(this != &rhs){
+			delete ps;
+			ps = rhs.ps;
+			rhs.ps = nullptr;
+		}
+		return *this;
+	}
+
+	~HasPtr() {delete ps;} 
+private:
+	std::string *ps;
+	int i;
+};
+
+inline 
+void swap(HasPtr& lhs, HasPtr& rhs){
+	using std::swap;
+	swap(lhs.ps, rhs.ps);
+	swap(lhs.i,rhs.i);
+}
+
+int main(){
+	HasPtr hp1("test1"),hp2("test2");
+	clock_t start = clock();
+	hp1 = hp2;
+	clock_t end = clock();
+	std::cout << end - start << std::endl;
+	return 0;
+}
+```
+
+好像差距不大，甚至swap的更快？可能测的/写的有问题
+
+参考其他前辈的题解说是`swap`操作交换时都会创建临时空间用来存临时变量的值，所以赋值运算效率低
+
+
+
+> 13.54 如果我们为 `HasPtr` 定义了移动赋值运算符，但未改变拷贝并交换运算符，会发生什么？编写代码验证你的答案。
+
+```cpp
+#include <string>
+#include <iostream>
+#include <ctime>
+
+class HasPtr {
+public:
+	friend void swap(HasPtr&, HasPtr&);
+public:
+	HasPtr(const std::string& s = std::string()):ps(new std::string(s)), i(0) { }//默认构造
+	HasPtr(const HasPtr& hp):ps(new std::string(*hp.ps)),i(hp.i){}//拷贝构造
+	HasPtr(HasPtr && hp)noexcept:ps(hp.ps),i(hp.i){//移动构造
+		hp.ps = nullptr;
+	}
+	HasPtr& operator=(HasPtr rhs){//拷贝赋值 swap版本
+		swap(*this,rhs);
+		return *this;
+	}
+	HasPtr& operator=(HasPtr&& rhs)noexcept{
+		if(this != &rhs){
+			delete ps;
+			ps = rhs.ps;
+			rhs.ps = nullptr;
+		}
+		return *this;
+	}
+
+	~HasPtr() {delete ps;} 
+private:
+	std::string *ps;
+	int i;
+};
+
+inline 
+void swap(HasPtr& lhs, HasPtr& rhs){
+	using std::swap;
+	swap(lhs.ps, rhs.ps);
+	swap(lhs.i,rhs.i);
+}
+
+int main(){
+    HasPtr hp1("test"),*hp2 = new HasPtr("train");
+    hp1 = std::move(*hp2);
+	return 0;
+}
+```
+
+报错
+
+```cpp
+error: use of overloaded operator '=' is ambiguous (with operand types 'HasPtr' and 'typename std::remove_reference<HasPtr &>::type' (aka 'HasPtr'))
+```
+
+
+
+### 13.6.3 右值引用和成员函数
+
+> 13.55 为你的 `StrBlob` 添加一个右值引用版本的 `push_back`。
+
+```cpp
+void push_back(string &&t){data->push_back(std::move(t));}
+```
+
+
+
+> 13.56 如果 `sorted` 定义如下，会发生什么？
+
+```cpp
+Foo Foo::sorted() const & {
+	Foo ret(*this);
+	return ret.sorted();
+}
+```
+
+`ret`由拷贝构造函数产生，是一个左值，循环调用
+
+> 13.57 如果 `sorted`定义如下，会发生什么：
+
+```cpp
+Foo Foo::sorted() const & { return Foo(*this).sorted(); }
+```
+
+`Foo(*this)`是个临时量，是右值，会调用右值版本的`sorted()`
+
+> 13.58 编写新版本的 `Foo` 类，其 `sorted` 函数中有打印语句，测试这个类，来验证你对前两题的答案是否正确。
+
+```cpp
+#include <algorithm>
+#include <string>
+#include <vector>
+#include <iostream>
+
+class Foo{
+public:
+	Foo sorted() &&;
+	Foo sorted() const &;
+private:
+	std::vector<int> data;
+};
+
+Foo Foo::sorted()&&{
+	sort(data.begin(),data.end());
+	std::cout << "Foo Foo::sorted()&&" << std::endl;
+	return *this;
+}
+
+Foo Foo::sorted() const &{
+	Foo ret(*this);
+	sort(ret.data.begin(),ret.data.end());
+	std::cout << "Foo Foo:sorted() const &" << std::endl;
+	return ret;
+}
+
+int main(){
+	Foo().sorted();//调用右值版本，如果没有的写右值版本会调用左值版本的
+	Foo f;
+	f.sorted();//调用左值版本
+	return 0;
+}
+```
+
+输出
+
+```cpp
+Foo Foo::sorted()&&
+Foo Foo:sorted() const &
+```
+
