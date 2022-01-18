@@ -1,4 +1,4 @@
-<h1 align="center">📔 C++ Prime 0x0A 练习题解</h1>
+<h1 align="center">📔 C++ Primer 0x0A 练习题解</h1>
 
 ## 10.1 概述
 

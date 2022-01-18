@@ -1,4 +1,4 @@
-<h1 align="center">📔 C++ Prime 0x0C 练习题解</h1>
+<h1 align="center">📔 C++ Primer 0x0C 练习题解</h1>
 
 ## 12.1 动态内存与智能指针
 

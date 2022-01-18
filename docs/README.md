@@ -47,7 +47,7 @@ clang version 13.0.0
 
 * [路线](路线.md)
 * [C++](C++/README.md)
-  * [C++ Prime 学习笔记](C++/C++primer/README.md) 更新中
+  * [C++ Primer 学习笔记](C++/C++primer/README.md) 更新中
   * [Effictive C++ 学习笔记](C++/EffectiveC++/README.md)
 * [专业课]()
 	* [数据结构 严蔚敏 课本知识点整理](专业课/数据结构%20严蔚敏/README.md)
