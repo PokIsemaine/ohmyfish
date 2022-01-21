@@ -39,7 +39,7 @@ C++ 学习的**经典著作**
 
 当前轮次：1
 
-目标：做完书上所有练习
+目标：做完书上所有练习(1-16章)
 
 截止时间：2022/1/31
 
@@ -62,4 +62,5 @@ C++ 学习的**经典著作**
 | 第13章：拷贝控制          | [Charpter 0x0D_note](/C++/C++primer/Charpter%200x0D_note.md) | [Charpter 0x0D](/C++/C++primer/Charpter%200x0D.md)           |
 | 第14章：重载与类型转换    | [Charpter 0x0E_note](/C++/C++primer/Charpter%200x0E_note.md) | [Charpter 0x0E](/C++/C++primer/Charpter%200x0E.md)(量有点大，不完整) |
 | 第15章：面向对象程序设计  | [Charpter 0x0F_note](/C++/C++primer/Charpter%200x0F_note.md) | [Charpter 0x0F](/C++/C++primer/Charpter%200x0F.md)           |
-| 第16章：模板与泛型编程    | [Charpter 0x10_note](/C++/C++primer/Charpter%200x10.md)      | [Charpter 0x10_note](/C++/C++primer/Charpter%200x10_note.md) |
+| 第16章：模板与泛型编程    | [Charpter 0x10_note](/C++/C++primer/Charpter%200x10.md)      | [Charpter 0x10](/C++/C++primer/Charpter%200x10.md)           |
+

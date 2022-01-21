@@ -32,4 +32,4 @@
   - [Charpter 0x0D](/C++/C++primer/Charpter%200x0D.md)
   - [Charpter 0x0E](/C++/C++primer/Charpter%200x0E.md)
   - [Charpter 0x0F](/C++/C++primer/Charpter%200x0F.md)
-  - [Charpter 0x0F](/C++/C++primer/Charpter%200x10.md)
+  - [Charpter 0x10](/C++/C++primer/Charpter%200x10.md)
