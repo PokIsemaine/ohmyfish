@@ -15,6 +15,7 @@
     - [Charpter 0x0D](/C++/C++primer/Charpter%200x0D_note.md)
     - [Charpter 0x0E](/C++/C++primer/Charpter%200x0E_note.md)
     - [Charpter 0x0F](/C++/C++primer/Charpter%200x0F_note.md)
+    - [Charpter 0x10](/C++/C++primer/Charpter%200x10_note.md)
 - 练习题解
   - [Charpter 0x01](/C++/C++primer/Charpter%200x01.md)
   - [Charpter 0x02](/C++/C++primer/Charpter%200x02.md)
@@ -31,3 +32,4 @@
   - [Charpter 0x0D](/C++/C++primer/Charpter%200x0D.md)
   - [Charpter 0x0E](/C++/C++primer/Charpter%200x0E.md)
   - [Charpter 0x0F](/C++/C++primer/Charpter%200x0F.md)
+  - [Charpter 0x0F](/C++/C++primer/Charpter%200x10.md)
