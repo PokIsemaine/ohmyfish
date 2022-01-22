@@ -49,6 +49,7 @@ clang version 13.0.0
 * [C++](C++/README.md)
   * [C++ Primer 学习笔记](C++/C++primer/README.md) 更新中
   * [Effictive 系列](C++/Effective/README.md)
+  * [侯捷 C++ 系列]()
 * [专业课]()
 	* [数据结构 严蔚敏 课本知识点整理](专业课/数据结构%20严蔚敏/README.md)
 	* [计算机组成原理  唐朔飞 课本知识点整理](/专业课/计算机组成原理%20唐朔飞/README.md) 
@@ -59,8 +60,9 @@ clang version 13.0.0
 
 * [课堂之外]()
   * [Linux](课堂之外/Linux)
-  * [设计模式]()
   * [MySql]()
+
+
 * [个人项目准备]()
   * [muduo网络库 学习笔记](/项目准备/muduo网络库/README.md)
   * [个人HTTP服务器项目]()
