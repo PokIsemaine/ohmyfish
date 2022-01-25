@@ -489,7 +489,17 @@ void memfcn(Base &b) { b = *this; }
 
 对于每个类，分别判断上面的函数是否合法。
 
+* 不论D以什么方式继承B，D的成员函数和友元都能使用派生类向基类的转换；派生类向其直接基类的类型转换对于派生类的成员和友元永远都是可访问的
 
+* `Pub_Derv`合法
+* `Priv_Derv`合法
+* `Prot_Derv`合法
+
+* 如果D继承B的方式是公有的或受保护的，则**D的派生类**的成员和友元可以使用D向B的类型转换，反之不行
+
+* `Derived_from_Public`合法
+*  `Derived_from_Private`非法
+* `Derived_from_Protected`合法
 
 > 15.20 编写代码检验你对前面两题的回答是否正确。
 
@@ -503,10 +513,410 @@ void memfcn(Base &b) { b = *this; }
 (c) C++语言中的类型（如类、函数、成员函数）
 ```
 
+```cpp
+#include <iostream>
+#include <utility>
+#include <cmath>
+
+using Coordinate = std::pair<double,double>;
+double Distance(const Coordinate& Point1,const Coordinate& Point2);
+class Shape{
+
+public:
+	Shape() = default;
+	Shape(const std::string& s):id(s){}
+	virtual ~Shape() = default;
+public:
+	virtual double perimeter()const=0;
+	virtual double area()const=0;
+private:
+	std::string id;
+};
+
+class Rectangle:public Shape{
+public:
+	friend double Distance(const Coordinate& Point1,const Coordinate& Point2);
+public:
+	Rectangle() = default;
+	Rectangle(const std::string& s,
+			const Coordinate& a,
+			const Coordinate& b,
+			const Coordinate& c,
+			const Coordinate& d)
+	:Shape(s),A(a),B(b),C(c),D(d){}
+	~Rectangle() = default;
+public:
+	double perimeter() const override { 
+		return 2*Distance(A,B)+Distance(C,D);
+	}
+	double area()const override{
+		return Distance(A,B)*Distance(C,D);
+	}
+
+protected:
+	Coordinate A;
+	Coordinate B;
+	Coordinate C;
+	Coordinate D;
+
+};
+
+class Square:public Rectangle{
+public:
+	Square() = default;
+	Square(const std::string& s,
+			const Coordinate& a,
+			const Coordinate& b,
+			const Coordinate& c,
+			const Coordinate& d)
+	:Rectangle(s,a,b,c,d){}
+	~Square() = default;
+};
+double Distance(const Coordinate& Point1,const Coordinate& Point2){
+	return std::sqrt((Point1.first-Point2.first)*(Point1.first-Point2.first)
+				+(Point1.second-Point2.second)*(Point1.second-Point2.second));
+}
+int main(){
+	Rectangle rt("rt1",{0,0},{10,0},{0,10},{10,10});
+	std::cout << rt.area() <<" " << rt.perimeter() << std::endl;
+	Square sq("sq1",{0,0},{10,0},{0,10},{10,10});
+	std::cout << sq.area() <<" " << sq.perimeter() << std::endl;
+	return 0;
+}
+```
+
 
 
 > 15.22 对于你在上一题中选择的类，为其添加函数的虚函数及公有成员和受保护的成员。
 
-
+见`15.21`
 
 ## 15.6 继承中的类作用域
+
+> 15.23 假设第550页的 `D1` 类需要覆盖它继承而来的 `fcn` 函数，你应该如何对其进行修改？如果你修改之后 `fcn` 匹配了 `Base` 中的定义，则该节的那些调用语句将如何解析？
+
+去掉`int`
+
+一个派生类如果覆盖了某个继承来的虚函数，它的形参类型必须要与被覆盖的基类函数完全一致
+
+## 15.7 构造函数与拷贝控制
+
+### 15.7.1 虚析构函数
+
+> 15.24 哪种类需要虚析构函数？虚析构函数必须执行什么样的操作？
+
+基类
+
+* 只要基类的析构函数是虚函数，就能确保我们`delete`基类指针时将运行正确的析构函数版本
+* 如果基类的析构函数不是虚函数，则`delete`一个指向派生类对象的基类指针将产生未定义的行为
+* 基类的虚析构函数，并不像普通类的一样，我们不能因为析构函数推断出该类是否还需要赋值运算符和拷贝构造函数。因为为了成为虚函数，它的内容是空的
+
+
+
+### 15.7.2 合成拷贝控制与继承
+
+> 15.25 我们为什么为 `Disc_quote` 定义一个默认构造函数？如果去掉该构造函数的话会对 `Bulk_quote` 的行为产生什么影响？
+
+因为大部分情况下不同的类定义了不同的构造函数，那么就不会自动合成默认构造函数了，需要自己定义
+
+`Bulk_quote`的默认构造函数运行`Disc_quote`的默认构造函数，后者又运行`Quote`的默认构造函数，如果`Disc_quote`没有默认构造函数，那`Bulk_quote`也没法完成初始化工作
+
+
+
+### 15.7.3 派生类的拷贝控制成员
+
+> 15.26 定义 `Quote` 和 `Bulk_quote` 的拷贝控制成员，令其与合成的版本行为一致。为这些成员以及其他构造函数添加打印状态的语句，使得我们能够知道正在运行哪个程序。使用这些类编写程序，预测程序将创建和销毁哪些对象。重复实验，不断比较你的预测和实际输出结果是否相同，直到预测完全准确再结束。
+
+```cpp
+#include <cstddef>
+#include <iostream>
+#include <string>
+
+
+class Quote{
+public:
+	Quote(){std::cout << "default constructing Quote\n";};
+	Quote(const std::string &book,double sales_price)
+		:bookNo(book),price(sales_price){
+			std::cout << "Quote : constructor taking 2 parameters\n";
+		}
+	Quote(const Quote& q):bookNo(q.bookNo),price(q.price){
+		std::cout << "Quote: copy constructing\n";
+	}
+	Quote(Quote&& q)noexcept:bookNo(std::move(q.bookNo)),price(std::move(q.price)){
+		std::cout << "Quote: move constructing\n"; 
+	}
+	Quote& operator=(const Quote& rhs){
+		if(this != &rhs){
+			bookNo = rhs.bookNo;
+			price = rhs.price;
+		}
+		std::cout << "Quote: copy =() \n";
+		return *this;
+	}
+	Quote& operator=(Quote&& rhs)noexcept{
+		if(this != &rhs){
+			bookNo = std::move(rhs.bookNo);
+			price = std::move(rhs.price);
+		}
+		std::cout << "Quote: move =() \n";
+		return *this;
+	}
+
+	virtual ~Quote(){
+		std::cout << "destructing Quote\n";
+	}
+
+public:
+	std::string isbn()const{return bookNo;}
+	virtual double net_price(std::size_t n)const{return n * price;}
+	virtual void debug()const{
+		std::cout << "data members of this class:\n"
+			<< "bookNo= " <<this->bookNo << " "
+			<< "price= " <<this->price<< " ";
+	}
+
+private:
+	std::string bookNo;	//ISBN编号
+protected:
+	double price = 0.0; //不打折的价格
+};
+
+class Disc_quote:public Quote{//抽象基类
+public:
+	Disc_quote() = default;
+	Disc_quote(const std::string& b,double p,std::size_t q,double d)
+		:Quote(b,p),quantity(q),discount(d){}
+public:
+	double net_price(std::size_t)const override = 0 ;
+	void debug()const override {
+		std::cout << "data members of this class:\n"
+			<< "bookNo= " <<this->quantity << " "
+			<< "price= " <<this->discount<< " ";
+	}
+protected:
+	std::size_t quantity = 0;//折扣适用的购买量
+    double	discount = 0.0;//表示折扣的小数值
+};
+
+class Bulk_quote:public Disc_quote {
+public:
+	Bulk_quote(){ std::cout << "default constructing Bulk_quote\n";}
+	Bulk_quote(const std::string& b,double p,std::size_t q,double disc)
+		:Disc_quote(b,p,q,disc){
+			std::cout << "Bulk_quote : constructor taking 4 parameters\n";
+		}
+	Bulk_quote(const Bulk_quote& bq):Disc_quote(bq){
+		std::cout << "Bulk_quote : copy constructor\n";
+	}
+	Bulk_quote(Bulk_quote&& bq)noexcept:Disc_quote(std::move(bq)){
+		std::cout << "Bulk_quote : move constructor\n";
+	}
+	Bulk_quote& operator=(const Bulk_quote& rhs){
+		Disc_quote::operator=(rhs);
+		std::cout << "Bulk_quote : copy =()\n";
+		return *this;
+	}
+	Bulk_quote& operator=(Bulk_quote&& rhs){
+		Disc_quote::operator=(rhs);
+		std::cout << "Bulk_quote : move =()\n";
+		return *this;
+	}
+	~Bulk_quote()
+	{
+		std::cout << "destructing Bulk_quote\n";
+	}
+public:
+	double net_price(std::size_t cnt)const override{//覆盖基类函数版本以实现基于大量购买的折扣政策
+		if (cnt >= quantity) return cnt * (1-discount) * price;
+		return cnt * price;
+	}	
+
+};
+
+class Limit_quote:public Disc_quote {
+public:
+	Limit_quote() = default;
+	Limit_quote(const std::string& b,double p,std::size_t q,double disc)
+		:Disc_quote(b,p,q,disc){}
+public:
+	double net_price(std::size_t cnt)const override{
+		if(cnt <= quantity)return cnt * (1-discount) * price;
+		return quantity * (1-discount) * price + (cnt-quantity) * price;
+	}
+};
+
+double print_total(std::ostream &os, const Quote &item, size_t n);
+```
+
+```cpp
+#include "Quote.hpp"
+
+double print_total(std::ostream &os, const Quote &item, size_t n){
+	double ret = item.net_price(n);
+	os << "ISBN: " << item.isbn() << " # sold: " << n << " total due: " << ret;
+	return  ret;
+}
+
+int main(){
+	Quote q("book1",15.4);
+	Quote q2;
+	Quote q3(q);
+	Quote q4 = q;
+
+	Bulk_quote bq("book2",15.4,5,0.3);
+	Bulk_quote bq2;
+	Bulk_quote bq3(bq);
+	Bulk_quote bq4 = bq;
+
+	return 0;
+}
+```
+
+
+
+```cpp
+Quote : constructor taking 2 parameters
+default constructing Quote
+Quote: copy constructing
+Quote: copy constructing
+Quote : constructor taking 2 parameters
+Bulk_quote : constructor taking 4 parameters
+default constructing Quote
+default constructing Bulk_quote
+Quote: copy constructing
+Bulk_quote : copy constructor
+Quote: copy constructing
+Bulk_quote : copy constructor
+destructing Bulk_quote
+destructing Quote
+destructing Bulk_quote
+destructing Quote
+destructing Bulk_quote
+destructing Quote
+destructing Bulk_quote
+destructing Quote
+destructing Quote
+destructing Quote
+destructing Quote
+destructing Quote
+```
+
+
+
+## 15.7.4 继承的构造函数
+
+> 15.27 重新定义你的 `Bulk_quote` 类，令其继承构造函数。
+
+```cpp
+class Bulk_quote:public Disc_quote {
+public:
+	Bulk_quote(){ std::cout << "default constructing Bulk_quote\n";}
+	// Bulk_quote(const std::string& b,double p,std::size_t q,double disc)
+	// 	:Disc_quote(b,p,q,disc){
+	// 		std::cout << "Bulk_quote : constructor taking 4 parameters\n";
+	// 	}
+	using Disc_quote::Disc_quote;
+	Bulk_quote(const Bulk_quote& bq):Disc_quote(bq){
+		std::cout << "Bulk_quote : copy constructor\n";
+	}
+	Bulk_quote(Bulk_quote&& bq)noexcept:Disc_quote(std::move(bq)){
+		std::cout << "Bulk_quote : move constructor\n";
+	}
+	Bulk_quote& operator=(const Bulk_quote& rhs){
+		Disc_quote::operator=(rhs);
+		std::cout << "Bulk_quote : copy =()\n";
+		return *this;
+	}
+	Bulk_quote& operator=(Bulk_quote&& rhs){
+		Disc_quote::operator=(rhs);
+		std::cout << "Bulk_quote : move =()\n";
+		return *this;
+	}
+	~Bulk_quote()
+	{
+		std::cout << "destructing Bulk_quote\n";
+	}
+public:
+	double net_price(std::size_t cnt)const override{//覆盖基类函数版本以实现基于大量购买的折扣政策
+		if (cnt >= quantity) return cnt * (1-discount) * price;
+		return cnt * price;
+	}	
+
+};
+```
+
+
+
+* 一个类只"继承"其直接基类的构造函数（非常常规方法，姑且算是继承），类不能继承默认、拷贝和移动构造函数（基本就是自己写的那些传参数的普通构造函数），如果类没有直接定义这些构造函数，则编译器将为派生类合成它们
+* 派生类继承基类构造函数的方式是提供一条注明了直接基类名的`using`声明语句(注意是继承构造函数，赋值运算符不算)
+	* 通常情况下`using`声明语句只是令某个名字在当前作用域内可见
+	* 当`using`作用于构造函数时，会让编译器生产代码，对于基类的每个构造函数，都生成一个对应的派生类构造函数
+	* 如果派生类有数据成员，那会被默认初始化
+
+## 15.8 容器与继承
+
+> 15.28 定义一个存放 `Quote` 对象的 `vector`，将 `Bulk_quote` 对象传入其中。计算 `vector` 中所有元素总的 `net_price`。
+
+```cpp
+#include "Quote.hpp"
+#include <vector>
+
+double print_total(std::ostream &os, const Quote &item, size_t n){
+	double ret = item.net_price(n);
+	os << "ISBN: " << item.isbn() << " # sold: " << n << " total due: " << ret;
+	return  ret;
+}
+
+int main(){
+	std::vector<Quote>v;
+	for(int i = 0; i != 10; ++i){
+		v.push_back(Bulk_quote("bq",15.4,5,0.3));
+	}
+	double total = 0.0;
+	for(auto bq:v){
+		total += bq.net_price(10);
+	}
+	std::cout << total << std::endl;
+
+	return 0;
+}
+```
+
+
+
+> 15.29 再运行一次你的程序，这次传入 `Quote` 对象的 `shared_ptr` 。如果这次计算出的总额与之前的不一致，解释为什么;如果一致，也请说明原因。
+
+```cpp
+#include "Quote.hpp"
+#include <vector>
+#include <memory>
+
+double print_total(std::ostream &os, const Quote &item, size_t n){
+	double ret = item.net_price(n);
+	os << "ISBN: " << item.isbn() << " # sold: " << n << " total due: " << ret;
+	return  ret;
+}
+
+int main(){
+	std::vector<std::shared_ptr<Quote>>pv;
+	for(int i = 0; i != 10; ++i){
+		pv.push_back(std::make_shared<Bulk_quote>(Bulk_quote("bq",15.4,5,0.3)));
+	}
+	double total = 0.0;
+	for(auto p:pv){
+		total += p->net_price(10);
+	}
+	std::cout << total << std::endl;
+
+	return 0;
+}
+```
+
+* 当我们使用容器存放继承体系中的对象时，通常必须采取间接存储的方式。因为不允许在容器中保存不同类型的元素，所以我们不能把具有继承关系的多种类型对象直接存放到容器中
+* 当派生类对象被赋值给基类对象时，**其中的派生类部分会被切掉**，因此容器和存在继承关系的类型无法兼容
+
+
+
+### 15.8.1 编写 Basket 类
+
