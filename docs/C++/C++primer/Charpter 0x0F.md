@@ -920,3 +920,259 @@ int main(){
 
 ### 15.8.1 编写 Basket 类
 
+> 编写你自己的 `Basket` 类，用它计算上一个练习中交易记录的总价格。
+
+增加虚拷贝函数
+
+```cpp
+#ifndef Quote_H
+#define Quote_H
+#include <cstddef>
+#include <iostream>
+#include <string>
+
+
+class Quote{
+public:
+	Quote()=default;
+	Quote(const std::string &book,double sales_price)
+		:bookNo(book),price(sales_price){}
+	Quote(const Quote& q):bookNo(q.bookNo),price(q.price){}
+	Quote(Quote&& q)noexcept:bookNo(std::move(q.bookNo)),price(std::move(q.price)){}
+	Quote& operator=(const Quote& rhs){
+		if(this != &rhs){
+			bookNo = rhs.bookNo;
+			price = rhs.price;
+		}
+		return *this;
+	}
+	Quote& operator=(Quote&& rhs)noexcept{
+		if(this != &rhs){
+			bookNo = std::move(rhs.bookNo);
+			price = std::move(rhs.price);
+		}
+		return *this;
+	}
+
+	virtual ~Quote() = default;
+
+public:
+	//该虚函数返回当前对象的一份动态分配的开被
+	virtual Quote* clone()const &{return new Quote(*this);}
+	virtual Quote* clone()&&{return new Quote(std::move(*this));}
+
+	std::string isbn()const{return bookNo;}
+	virtual double net_price(std::size_t n)const{return n * price;}
+	virtual void debug()const{
+		std::cout << "data members of this class:\n"
+			<< "bookNo= " <<this->bookNo << " "
+			<< "price= " <<this->price<< " ";
+	}
+
+private:
+	std::string bookNo;	//ISBN编号
+protected:
+	double price = 0.0; //不打折的价格
+};
+
+class Disc_quote:public Quote{//抽象基类
+public:
+	Disc_quote() = default;
+	Disc_quote(const std::string& b,double p,std::size_t q,double d)
+		:Quote(b,p),quantity(q),discount(d){}
+public:
+	double net_price(std::size_t)const override = 0 ;
+	void debug()const override {
+		std::cout << "data members of this class:\n"
+			<< "bookNo= " <<this->quantity << " "
+			<< "price= " <<this->discount<< " ";
+	}
+protected:
+	std::size_t quantity = 0;//折扣适用的购买量
+    double	discount = 0.0;//表示折扣的小数值
+};
+
+class Bulk_quote:public Disc_quote {
+public:
+	Bulk_quote()=default;
+	Bulk_quote(const std::string& b,double p,std::size_t q,double disc)
+		:Disc_quote(b,p,q,disc){}
+	Bulk_quote(const Bulk_quote& bq)=default;
+	Bulk_quote(Bulk_quote&& bq)=default;
+	Bulk_quote& operator=(const Bulk_quote& rhs)=default;
+	Bulk_quote& operator=(Bulk_quote&& rhs)=default;
+	~Bulk_quote() = default;
+public:
+	Bulk_quote* clone()const& override{return new Bulk_quote(*this);}
+	Bulk_quote* clone()&& override{return new Bulk_quote(std::move(*this));}
+	double net_price(std::size_t cnt)const override{//覆盖基类函数版本以实现基于大量购买的折扣政策
+		if (cnt >= quantity) return cnt * (1-discount) * price;
+		return cnt * price;
+	}	
+
+};
+
+class Limit_quote:public Disc_quote {
+public:
+	Limit_quote() = default;
+	Limit_quote(const std::string& b,double p,std::size_t q,double disc)
+		:Disc_quote(b,p,q,disc){}
+public:
+	double net_price(std::size_t cnt)const override{
+		if(cnt <= quantity)return cnt * (1-discount) * price;
+		return quantity * (1-discount) * price + (cnt-quantity) * price;
+	}
+};
+
+inline double print_total(std::ostream &os, const Quote &item, size_t n){
+	double ret = item.net_price(n);
+	os << "ISBN: " << item.isbn() << " # sold: " << n << " total due: " << ret;
+	return  ret;
+}
+#endif
+```
+
+
+
+```cpp
+#ifndef Basket_H
+#define Basket_H
+
+#include <memory>
+#include <iostream>
+#include <set>
+#include "Quote.hpp"
+
+class Basket{
+public:
+	//使用合成的默认构造函数和拷贝控制成员
+
+	void add_item(const Quote& sale){
+		items.insert(std::shared_ptr<Quote>(sale.clone()));
+	}
+	void add_item(Quote && sale){
+		items.insert(std::shared_ptr<Quote>(std::move(sale).clone()));
+	}
+
+	//打印每本书的总价和购物篮里所有书的总价
+	double total_receipt(std::ostream& os)const{
+		double sum = 0.0;
+		for(auto iter = items.cbegin();iter != items.cend();iter = items.upper_bound(*iter)){//会跳过关键字相同的
+			sum += print_total(os, **iter, items.count(*iter));
+			//*iter 得到一个指向准备打印对象的shared_ptr
+			//**iter 是个Quote对象
+		}
+		os << "Total Sale: " << sum << std::endl;
+		return sum;
+	}
+private:
+	// 用于比较 shared_ptr,multiset会用到
+	static bool compare(const std::shared_ptr<Quote> &lhs,
+						const std::shared_ptr<Quote> &rhs){
+							return lhs->isbn() < rhs->isbn();
+						}
+	std::multiset<std::shared_ptr<Quote>,decltype(compare)*>items{compare};
+	//multiset 保存多个报价，按compare成员排序
+};
+
+#endif
+```
+
+
+
+```cpp
+#include "Quote.hpp"
+#include "Basket.hpp"
+#include <vector>
+#include <memory>
+
+
+int main(){
+	Basket basket;
+
+	for (unsigned i = 0; i != 10; ++i)
+		basket.add_item(Bulk_quote("Bible", 20.6, 20, 0.3));
+
+	for (unsigned i = 0; i != 10; ++i)
+		basket.add_item(Bulk_quote("C++Primer", 30.9, 5, 0.4));
+
+	for (unsigned i = 0; i != 10; ++i)
+		basket.add_item(Quote("CLRS", 40.1));
+
+	basket.total_receipt(std::cout);
+	return 0;
+
+	return 0;
+}
+```
+
+
+
+## 15.9 文本查询程序再探
+
+### 15.9.1 面向对象的解决方案
+
+> 15.31 已知 `s1`、`s2`、`s3` 和 `s4` 都是 `string`，判断下面的表达式分别创建了什么样的对象：
+
+```cpp
+(a) Query(s1) | Query(s2) & ~Query(s3);//返回一个Query 绑定到 AndQuery
+(b) Query(s1) | (Query(s2) & ~Query(s3));//返回一个Query 绑定到 OrQuery
+(c) (Query(s1) & (Query(s2)) | (Query(s3) & Query(s4)));//返回一个Query 绑定到 OrQuery
+```
+
+
+
+### 15.9.2 Query_base 类和 Query 类
+
+> 15.32 当一个 `Query` 类型的对象被拷贝、移动、赋值或销毁时，将分别发生什么？
+
+会使用合成的版本进行拷贝、移动、赋值和销毁
+
+拷贝：智能指针计数器+1
+
+移动：新对象智能指针指向原对象地址，原对象指针为`nullptr`，新对象智能指针计数器为1
+
+赋值：和拷贝差不多
+
+销毁：智能指针计数器-1，如果为0,释放内存
+
+> 15.33 当一个 `Query_base` 类型的对象被拷贝、移动赋值或销毁时，将分别发生什么？
+
+`Query_base`是抽象基类，所以实际对象是派生类对象
+
+
+
+### 15.9.3  派生类
+
+> 15.34 针对图15.3构建的表达式：
+
+```cpp
+(a) 例举出在处理表达式的过程中执行的所有构造函数。
+(b) 例举出 cout << q 所调用的 rep。
+(c) 例举出 q.eval() 所调用的 eval。
+```
+
+
+
+> 15.35 实现 `Query` 类和 `Query_base` 类，其中需要定义`rep` 而无须定义 `eval`。
+
+
+
+> 15.36 在构造函数和 `rep` 成员中添加打印语句，运行你的代码以检验你对本节第一个练习中(a)、(b)两小题的回答是否正确。
+
+
+
+> 15.37 如果在派生类中含有 `shared_ptr<Query_base>` 类型的成员而非 `Query` 类型的成员，则你的类需要做出怎样的改变？
+
+
+
+> 15.38 下面的声明合法吗？如果不合法，请解释原因;如果合法，请指出该声明的含义。
+
+```cpp
+BinaryQuery a = Query("fiery") & Query("bird");//不合法，BinaryQuery是抽象类
+AndQuery b = Query("fiery") & Query("bird");//不合法&返回Query，不能转为AndQuery
+OrQuery c = Query("fiery") & Query("bird");//不合法&返回Query，不能转为OrQuery
+```
+
+* 不存在从基类向派生类的隐式转换
+* 我们不能直接创建一个抽象基类的对象
