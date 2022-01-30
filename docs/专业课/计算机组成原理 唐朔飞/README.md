@@ -1,5 +1,7 @@
 <h1 align="center">计算机组成原理 唐朔飞 复习整理</h1>
 
+![计算机组成原理 唐朔飞 的图像结果](https://tse1-mm.cn.bing.net/th/id/OIP-C.-JY0cAtjtfmoCJe8U1_RNAHaHa?w=188&h=188&c=7&r=0&o=5&pid=1.7)
+
 ## 目录
 
 * [概述](/专业课/计算机组成原理%20唐朔飞/README.md)
