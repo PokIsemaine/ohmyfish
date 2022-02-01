@@ -34,11 +34,11 @@
 
 [第六章 继承与面向对象设计](/C++/Effective/Effective%20C++/第六章%20继承与面向对象设计.md)
 
-[第七章 模板与泛型编程]()
+[第七章 模板与泛型编程](/C++/Effective/Effective%20C++/第七章%20模板与泛型编程.md)
 
-[第八章 定制 new 和 delete]()
+[第八章 定制 new 和 delete](/C++/Effective/Effective%20C++/第八章%20定制new和delete.md)
 
- [第九章 杂项讨论]()
+ [第九章 杂项讨论](/C++/Effective/Effective%20C++/第九章%20杂项讨论.md)
 
 ## 条款概览
 
@@ -92,3 +92,10 @@ Tip：新标准指 `C++11`
 * 条款46：需要类型转换时请为模板定义非成员函数
 * 条款47：请使用 `traits classes` 表现类型信息
 * 条款48：认识 `template `元编程
+* 条款49：了解 `new-handler` 的行为
+* 条款50：了解 `new` 和 `delete` 的合理替换时机
+* 条款51：编写 `new` 和 `delete` 时需固守常规
+* 条款52：写了 `placement new` 也要写 `placement delete`
+* 条款53：不要轻忽编译器的警告
+* 条款54：让自己熟悉包括 `TR1` 在内的标准程序库
+* 条款55：让自己熟悉 `Boost`
