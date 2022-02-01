@@ -41,7 +41,7 @@
 
 * [C++ Primer 学习笔记](C++/C++primer/README.md) 
 * [Effictive 系列](C++/Effective/README.md)
-* [侯捷 C++ 系列]()更新中
+* [侯捷 C++ 系列](/C++/侯捷C++/README.md)更新中
 
 ## 专业课
 
