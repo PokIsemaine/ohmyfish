@@ -15,7 +15,6 @@
 * Object Based 基于对象(面对的是单一 class 的设计)
   * [class without pointer members (Complex)](/C++/侯捷C++/C++%20面向对象/complex.md)
   * [class with pointer members (String)](/C++/侯捷C++/C++%20面向对象/string.md)
+  * [基于对象补充知识点](/C++/侯捷C++/C++%20面向对象/基于对象补充知识点.md)
 * Object Oriented 面向对象(面对的是多重 classes 的设计，classes 和 classes 之间的关系)
-  * inheritanc 继承
-  * composition 复合
-  * delegation 委托
+	* [三大基本关系](/C++/侯捷C++/C++%20面向对象/三大基本关系.md)
