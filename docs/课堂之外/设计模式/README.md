@@ -30,7 +30,7 @@
 
 ## 内容
 
-*  [开始]()
+*  [序章](/课堂之外/设计模式/序章.md)
 * 组件协作
 	* Template Method
 	* Observer/Event
