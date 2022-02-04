@@ -1,5 +1,12 @@
 # 设计模式
 
+## 目标
+
+* 理解松耦合**设计思想**
+* 掌握面向对象**设计原则**
+* 掌握**重构技法**改善设计
+* 掌握GOF核心**设计模式**
+
 ## 参考资料
 
 * GOF的《设计模式》
@@ -13,8 +20,6 @@
 
 [设计模式有何不妥，所谓的荼毒体现在哪？](https://www.zhihu.com/question/23757237)
 
-
-
 我个人认为有以下几点需要牢记的
 
 * 不要滥用设计模式，不要为了使用设计模式而使用设计模式，设计模式是用来解决问题的
@@ -25,3 +30,36 @@
 
 ## 内容
 
+*  [开始]()
+* 组件协作
+	* Template Method
+	* Observer/Event
+	* Strategy
+* 单一职责
+	* Decorator
+	* Bridge
+* 对象创建
+	* Factory Method
+	* Abstract Factory
+	* Prototype
+	* Builder
+* 对象性能
+	* Singleton
+	* Flyweight
+* 接口隔离
+	* Facade
+	* Proxy
+	* Mediator
+	* Adapter
+* 状态变化
+	* Memento
+	* State
+* 数据结构
+	* Composite
+	* Iterator
+	* Chain of Resposibility
+* 行为变化
+	* Command
+	* Visitor
+* 领域问题
+	* Interpreter
