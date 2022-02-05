@@ -28,11 +28,16 @@
 * 设计模式应该重点学习解决问题的方法策略，而不是代码
 * 设计模式可以算是对编程语言本身的一种弥补，有的新语言可能在被设计时就已经通过语法糖帮你实现了某些设计模式
 
+## 概览
+
+<img src="https://s2.loli.net/2022/02/06/auHWd72ORhgrzsV.png" alt="设计模式" style="zoom:95%;" />
+
 ## 内容
 
 *  [序章](/课堂之外/设计模式/序章.md)
+*  [要点和常见误区](/课堂之外/设计模式/要点和常见误区.md)
 * 组件协作
-	* Template Method
+	* [Template Method]()
 	* Observer/Event
 	* Strategy
 * 单一职责
@@ -63,3 +68,8 @@
 	* Visitor
 * 领域问题
 	* Interpreter
+
+
+
+
+
