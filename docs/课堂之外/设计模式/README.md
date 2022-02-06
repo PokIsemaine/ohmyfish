@@ -11,6 +11,7 @@
 
 * GOF的《设计模式》
 * 李建忠的C++设计模式课程
+* [Cpp-Design-Patterns 代码仓库](https://github.com/liu-jianhao/Cpp-Design-Patterns)
 
 ## 前言
 
@@ -38,36 +39,36 @@
 *  [要点和常见误区](/课堂之外/设计模式/要点和常见误区.md)
 * 组件协作
 	* [Template Method]()
-	* Observer/Event
-	* Strategy
+	* [Observer/Event]()
+	* [Strategy]()
 * 单一职责
-	* Decorator
-	* Bridge
+	* [Decorator](/课堂之外/设计模式/Decorator.md)
+	* [Bridge](/课堂之外/设计模式/Bridge.md)
 * 对象创建
 	* Factory Method
 	* Abstract Factory
 	* Prototype
-	* Builder
+	* Builder[不常用]
 * 对象性能
 	* Singleton
 	* Flyweight
 * 接口隔离
 	* Facade
 	* Proxy
-	* Mediator
+	* Mediator[不常用]
 	* Adapter
 * 状态变化
-	* Memento
+	* Memento[不常用]
 	* State
 * 数据结构
 	* Composite
-	* Iterator
-	* Chain of Resposibility
+	* Iterator[不常用]
+	* Chain of Resposibility[不常用]
 * 行为变化
-	* Command
-	* Visitor
+	* Command[不常用]
+	* Visitor[不常用]
 * 领域问题
-	* Interpreter
+	* Interpreter[不常用]
 
 
 
