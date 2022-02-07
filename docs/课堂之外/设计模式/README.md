@@ -38,10 +38,10 @@
 *  [序章](/课堂之外/设计模式/序章.md)
 *  [要点和常见误区](/课堂之外/设计模式/要点和常见误区.md)
 * 组件协作
-	* [Template Method]()
-	* [Observer/Event]()
-	* [Strategy]()
-* 单一职责
+	* [Template Method](/课堂之外/设计模式/Template%20Method.md)
+	* [Observer/Event](/课堂之外/设计模式/Observer.md)
+	* [Strategy](/课堂之外/设计模式/Strategy.md)
+*  单一职责
 	* [Decorator](/课堂之外/设计模式/Decorator.md)
 	* [Bridge](/课堂之外/设计模式/Bridge.md)
 * 对象创建
