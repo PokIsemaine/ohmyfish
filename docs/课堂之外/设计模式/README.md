@@ -45,8 +45,8 @@
 	* [Decorator](/课堂之外/设计模式/Decorator.md)
 	* [Bridge](/课堂之外/设计模式/Bridge.md)
 * 对象创建
-	* Factory Method
-	* Abstract Factory
+	* [Factory Method](/课堂之外/设计模式/Factory%Method.md)
+	* [Abstract Factory]()
 	* Prototype
 	* Builder[不常用]
 * 对象性能
