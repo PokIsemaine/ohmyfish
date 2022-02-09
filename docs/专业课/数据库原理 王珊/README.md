@@ -1,8 +1,8 @@
 
 
-<h1 align="center">数据结构 严蔚敏 复习整理</h1>
+<h1 align="center">数据库 王珊 复习整理</h1>
 
-![数据结构 严蔚敏 的图像结果](https://tse2-mm.cn.bing.net/th/id/OIP-C.ptmcSnczUGx7_UPEq3sN6wHaHb?w=186&h=187&c=7&r=0&o=5&pid=1.7)
+![查看源图像](https://www.xz577.com/uploads/2002/1-200220092S0227.jpg)
 
 
 
@@ -34,11 +34,12 @@
 	* [第十六章 数据仓库与联机分析处理技术]()
 
 
+
 # 食用指南
 
 * 所有内容来源于：书本、习题、PPT
 
-	
+​	
 
 # 个人评价
 
