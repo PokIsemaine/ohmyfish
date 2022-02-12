@@ -38,44 +38,45 @@
 *  [序章](/课堂之外/设计模式/序章.md)
 *  [要点和常见误区](/课堂之外/设计模式/要点和常见误区.md)
 *  组件协作
-	*  [Template Method](/课堂之外/设计模式/Template%20Method.md)
-	*  [Observer/Event](/课堂之外/设计模式/Observer.md)
-	*  [Strategy](/课堂之外/设计模式/Strategy.md)
+  *  [Template Method 模板方法](/课堂之外/设计模式/Template%20Method.md)
+  *  [Observer/Event 观察者模式](/课堂之外/设计模式/Observer.md)
+  *  [Strategy 策略模式](/课堂之外/设计模式/Strategy.md)
 
 *  单一职责
-  * [Decorator](/课堂之外/设计模式/Decorator.md)
-  * [Bridge](/课堂之外/设计模式/Bridge.md)
+  * [Decorator 装饰模式](/课堂之外/设计模式/Decorator.md)
+  * [Bridge 桥模式](/课堂之外/设计模式/Bridge.md)
 *  对象创建
-	*  [Factory Method](/课堂之外/设计模式/Factory%20Method.md)
-	*  [Abstract Factory](/课堂之外/设计模式/Abstract%20Factory.md)
-	*  [Prototype[不常用]](/课堂之外/设计模式/Prototype.md)
-	*  [Builder[不常用]](/课堂之外/设计模式/Builder.md)
+  *  [Factory Method 工厂方法](/课堂之外/设计模式/Factory%20Method.md)
+  *  [Abstract Factory 抽象工厂](/课堂之外/设计模式/Abstract%20Factory.md)
+  *  [Prototype 原型模式[不常用]](/课堂之外/设计模式/Prototype.md)
+  *  [Builder 构建器[不常用]](/课堂之外/设计模式/Builder.md)
 
 *  对象性能
-  *  [Singleton](/课堂之外/设计模式/Singleton.md)
-  *  [Flyweight](/课堂之外/设计模式/Flyweight.md)
+  *  [Singleton 单例模式](/课堂之外/设计模式/Singleton.md)
+  *  [Flyweight 享元模式](/课堂之外/设计模式/Flyweight.md)
 
 *  接口隔离
-	*  Facade
-	*  Proxy
-	*  Mediator[不常用]
-	*  Adapter
+  *  [Facade 门面模式](/课堂之外/设计模式/Facade.md)
+  *  [Proxy 代理模式](/课堂之外/设计模式/Proxy.md)
+  *  [Mediator 中介者[不常用]](/课堂之外/设计模式/Mediator.md)
+  *  [Adapter 适配器模式](/课堂之外/设计模式/Adapter.md)
 
 *  状态变化
-	*  Memento[不常用]
-	*  State
+  *  [Memento 备忘录[不常用]](/课堂之外/设计模式/Memento.md)
+  *  [State](/课堂之外/设计模式/State.md)
 
 *  数据结构
-	*  Composite
-	*  Iterator[不常用]
-	*  Chain of Resposibility[不常用]
+  *  Composite
+  *  Iterator[不常用]
+  *  Chain of Resposibility[不常用]
 
 *  行为变化
-	*  Command[不常用]
-	*  Visitor[不常用]
+  *  Command[不常用]
+  *  Visitor[不常用]
 
 *  领域问题
-	*  Interpreter[不常用]
+  *  Interpreter[不常用]
+*  [忘记模式，唯有原则](/课堂之外/设计模式/忘记模式唯有原则.md)
 
 
 
