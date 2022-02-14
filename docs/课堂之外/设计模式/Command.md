@@ -1,4 +1,4 @@
-# Observer
+# Command
 
 ## 动机
 

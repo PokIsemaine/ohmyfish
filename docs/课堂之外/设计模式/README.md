@@ -63,19 +63,19 @@
 
 *  状态变化
   *  [Memento 备忘录[不常用]](/课堂之外/设计模式/Memento.md)
-  *  [State](/课堂之外/设计模式/State.md)
+  *  [State 状态模式](/课堂之外/设计模式/State.md)
 
 *  数据结构
-  *  Composite
-  *  Iterator[不常用]
-  *  Chain of Resposibility[不常用]
+  *  [Composite 组合模式](/课堂之外/设计模式/Composite.md)
+  *  [Iterator 迭代器模式[不常用]](/课堂之外/设计模式/Iterator.md)
+  *  [Chain of Resposibility 责任链模式[不常用]](/课堂之外/设计模式/Chain%20of%20Resposibility.md)
 
 *  行为变化
-  *  Command[不常用]
-  *  Visitor[不常用]
+  *  [Command 命令模式[不常用]](/课堂之外/设计模式/Command.md)
+  *  [Visitor[不常用]](/课堂之外/设计模式/Visitor.md)
 
 *  领域问题
-  *  Interpreter[不常用]
+  *  [Interpreter[不常用]](/课堂之外/设计模式/Interpreter.md)
 *  [忘记模式，唯有原则](/课堂之外/设计模式/忘记模式唯有原则.md)
 
 
