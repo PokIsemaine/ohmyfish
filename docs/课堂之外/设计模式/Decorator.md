@@ -224,7 +224,7 @@ classDiagram
 
 我们对`CryptoFileStream`进行如下更改，`NetworkStream`和`MemoryStream`同理
 
-```CPP
+```cpp
 //扩展操作
 //class CryptoFileStream :public FileStream{
 class CryptoFileStream{
