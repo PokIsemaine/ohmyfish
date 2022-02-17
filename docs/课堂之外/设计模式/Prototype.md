@@ -11,7 +11,7 @@
 
 ## SHOW ME THE CODE
 
-```CPP
+```cpp
 //抽象类
 class ISplitter{
 public:
@@ -61,7 +61,7 @@ public:
 
 `Client.cpp`
 
-```CPP
+```cpp
 class MainForm : public Form
 {
     ISplitter*  prototype;//原型对象
