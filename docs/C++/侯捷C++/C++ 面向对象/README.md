@@ -40,3 +40,7 @@
 * [namespace 经验谈](/C++/侯捷C++/C++%20面向对象/namespace.md)
 * [关于模板](/C++/侯捷C++/C++%20面向对象/template.md)
 * [三个主题(since C++11)](/C++/侯捷C++/C++%20面向对象/三个主题.md)
+* [Reference](/C++/侯捷C++/C++%20面向对象/Reference.md)
+* [Object Model](/C++/侯捷C++/C++%20面向对象/Object%20Model.md)
+* [谈谈const](/C++/侯捷C++/C++%20面向对象/const.md)
+* [new与delete](/C++/侯捷C++/C++%20面向对象/new与delete.md)
