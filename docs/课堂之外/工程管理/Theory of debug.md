@@ -49,7 +49,71 @@
 
 # Debugging 调试
 
+## Difficulty in debugging 调试的难点
+
+调试的难点在哪里？我认为是找 bug 的过程。大多时候我们并不是找到了 bug 不会改，而是根本没找到 bug。
+
+是什么增加了寻找 bug 源头的难度呢？
+
+bug **触发**到**被观测**到错误有可能经历了**很长**一段过程
+
+![image-20220223142516772](https://s2.loli.net/2022/02/23/8W7Cqn6ij3vkOml.png)
+
+
+
+举一个简单的例子
+
+| 需求                                  | 设计/算法（假象代码）        | 实际代码                     | Fault             | Error                         | Failure |
+| ------------------------------------- | ---------------------------- | ---------------------------- | ----------------- | ----------------------------- | ------- |
+| $\sum_{i=0}^{n-1}\sum_{j=0}^{n-1}i*j$ | `for(int j = 0; j < n; ++j)` | `for(int j = 0; j < n; ++i)` | `++i`,应该为`++j` | `i,j`状态<br />`(0,0)->(1,0)` | TLE超时 |
+
+设计/算法（假象代码）
+
+```cpp
+#include <stdio.h>
+
+#define n 3
+
+int main(){
+    int sum = 0;
+    for(int i = 0; i < n; ++i)
+        for(int j = 0; j < n; ++j)
+            sum += i * j;
+    printf("sum = %d\n",sum);
+    return 0;
+}
+```
+
+实际代码
+
+```cpp
+#include <stdio.h>
+
+#define n 3
+
+int main(){
+    int sum = 0;
+    for(int i = 0; i < n; ++i)
+        for(int j = 0; j < n; ++i)//Fault(Bug) ++i,应该为++j
+            sum += i * j;
+    printf("sum = %d\n",sum);
+    return 0;
+}
+```
+
+
+
 ## Theory of debug 调试理论
+
+> 调试理论：**如果我们能判定任意程序状态的正确性**，那么给定一个failure，我们可以通过二分查找定位到
+>
+> **第一个**error 的状态，此时的代码就是fault (bug)。
+>
+> <p align="right">———[NJU 2021秋季学期ICS课程]王慧妍老师的课件</p>
+
+
+
+## Printf 与 GDB
 
 printf 手动二分01二分
 
