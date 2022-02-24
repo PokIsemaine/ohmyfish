@@ -57,6 +57,13 @@
 
 bug **触发**到**被观测**到错误有可能经历了**很长**一段过程
 
+* 定位难：不知道是哪里触发的
+	* 如何去定位？
+* 观测难：状态规模巨大？
+* 检查难：难以判断一个状态是否是正确的
+	* 需求理解不正确
+	* 观测的状态量不足以真正反应一个状态的正确性
+
 ![image-20220223142516772](https://s2.loli.net/2022/02/23/8W7Cqn6ij3vkOml.png)
 
 
@@ -103,6 +110,10 @@ int main(){
 
 
 
+可观测性
+
+
+
 ## Theory of debug 调试理论
 
 > 调试理论：**如果我们能判定任意程序状态的正确性**，那么给定一个failure，我们可以通过二分查找定位到
@@ -115,21 +126,49 @@ int main(){
 
 ## Printf 与 GDB
 
-printf 手动二分01二分
+单步调试，二八定理时间黑洞
+
+printf 手动二分01二分，trace日志怎么写？
 
 gdb 
 
 状态是否足够
 
-## 推荐实践
+## Recommended practice 推荐实践
 
 ### Before 调试之前
 
 摆正心态：机器永远是对的，未测代码永远是错的
 
-
+利用编译选项
 
 ### Doing 调试时
+
+
+
+### After 调试后
+
+
+
+# More than just programs 不止程序
+
+## 调试的三个对象
+
+### 人
+
+
+
+### 调试目标
+
+
+
+### 调试过程
+
+## 调试的本质
+
+
+
+## 调试一切
 
 
 
@@ -138,3 +177,5 @@ gdb
 [NJU 2021秋季学期ICS课程](http://jyywiki.cn/ICS/2021/)
 
 [Debugging-Wikipedia](https://en.wikipedia.org/wiki/Debugging)
+
+[调试理论](https://zhuanlan.zhihu.com/p/141514396)
