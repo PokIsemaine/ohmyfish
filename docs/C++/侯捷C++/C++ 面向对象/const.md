@@ -29,3 +29,5 @@ reference operator[](size_type pos)
 如果是非常量字符串`operator[]`有可能读也有可能写，就必须要考虑`Copy On Write`。
 
 为了区分常量字符串和非常量字符串我们使用`const`来重载
+
+更多关于`C++ string`的可以看一下陈硕前辈的 《Linux 多线程服务端编程》的12.7 再探 `std::string`里面还提到了`SSO`优化
