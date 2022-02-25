@@ -4,9 +4,9 @@
 
 ![image-20220224155705472](https://s2.loli.net/2022/02/24/SmYPOXJx9KZoF25.png)
 
-平常我们直接使用的`new`和`delete`都是表达式，但是`operator new`和`operator delete`是运算符
+`new`和`delete`是运算符，不过平常我们以表达式的形式去使用，但是`operator new`和`operator delete`是库函数
 
-表达式的行为是不能变的，但是分解出来的几个函数/运算符是可以重载的
+表达式的行为是不能变的，但是分解出来的几个函数是可以重载的
 
 `operator new`和`operator delete`底层实际上调用`malloc`和`free`
 
