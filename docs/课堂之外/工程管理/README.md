@@ -11,7 +11,7 @@
 * STAR（项目描述）
 * 5W1H（科学的工作分析方法）
 * 5WHY（需求分析）
-* [Theory of debug(调试理论)](/课堂之外/工程管理/Theory%20of%debug.md)
+* [Theory of debug(调试理论)](/课堂之外/工程管理/Theory%20of%20debug.md)
 
 ### 工具
 
