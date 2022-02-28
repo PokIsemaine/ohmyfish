@@ -5,10 +5,12 @@
 
 ## 内容
 
+![image-20220227171319702](https://s2.loli.net/2022/02/27/E2Iqz3eWdT8XcZr.png)
+
 ### primitives 基础工具
 
 * 
-* 
+* ​                                                                                                               
 
 ### malloc/free 具体动作
 
