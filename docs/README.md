@@ -56,6 +56,7 @@
 * [设计模式](/课堂之外/设计模式/README.md)
 * [MySql(MariaDB)]()
 * [工程管理](/课堂之外/工程管理/README.md)
+* [NJUOS](/课堂之外/NJUOS/README.md)
 
 ### 项目准备
 
