@@ -9,8 +9,8 @@
 
 ### primitives 基础工具
 
-* 
-* ​                                                                                                               
+* 四个层面的基本用法
+* new expression                                                                                            
 
 ### malloc/free 具体动作
 
