@@ -10,7 +10,10 @@
 ### primitives 基础工具
 
 * 四个层面的基本用法
-* new expression                                                                                            
+* new expression            
+* array new
+* placement new
+* 重载                                                                                
 
 ### malloc/free 具体动作
 
