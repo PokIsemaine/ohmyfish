@@ -9,17 +9,20 @@
 
 ### primitives 基础工具
 
-* 四个层面的基本用法
-* new expression            
-* array new
-* placement new
-* 重载                                                                                
-
-### malloc/free 具体动作
-
-
+* [四个层面的基本用法](/C++/侯捷C++/C++%20内存管理/四个层面的基本用法.md)
+* [new expression](/C++/侯捷C++/C++%20内存管理/new%20expression.md)            
+* [array new](/C++/侯捷C++/C++%20内存管理/array%20new.md)
+* [placement new](/C++/侯捷C++/C++%20内存管理/placement%20new.md)
+* [重载](/C++/侯捷C++/C++%20内存管理/重载.md) 
+* [per-class allocator](/C++/侯捷C++/C++%20内存管理/pre-class%20allocator.md)
+* [new handler](/C++/侯捷C++/C++%20内存管理/new%20handler.md)
+* [default&delete](/C++/侯捷C++/C++%20内存管理/default&delete.md)                                                                               
 
 ### std::allocator 标准库分配器
+
+* 
+
+### malloc/free 具体动作
 
 
 
