@@ -20,7 +20,7 @@
 
 ### std::allocator 标准库分配器
 
-* 
+* VC6标准分配器之实现
 
 ### malloc/free 具体动作
 
