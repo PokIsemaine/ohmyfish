@@ -20,7 +20,7 @@
 
 ### std::allocator 标准库分配器
 
-* allocator
+* [allocator](/C++/侯捷C++/C++%20内存管理/allocator.md)
 
 ### malloc/free 具体动作
 
