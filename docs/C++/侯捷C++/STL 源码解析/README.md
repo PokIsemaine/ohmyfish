@@ -32,13 +32,9 @@
 
 容器
 
-* (multi)set
-* (multi)map
+* set
+* map
 * hashtable
-* hash_set
-* hash_map
-* hash_multiset
-* hash_multimap
 
 ## Part6 算法
 
