@@ -1,0 +1,245 @@
+<h1>Lab: system calls</h1>
+<h2>System call tracing <script>g("moderate")</script></h2>
+
+<p>
+<div class="required">
+  In this assignment you will add a system call tracing feature that
+  may help you when debugging later labs.  You'll create a
+  new <tt>trace</tt> system call that will control tracing. It should
+  take one argument, an integer "mask", whose bits specify which
+  system calls to trace.  For example, to trace the fork system call,
+  a program calls <tt>trace(1 << SYS_fork)</tt>, where <tt>SYS_fork</tt> is a
+  syscall number from <tt>kernel/syscall.h</tt>. You have to modify
+  the xv6 kernel to print out a line when each system call is about to
+  return, if the system call's number is set in the mask.
+  The line should contain the
+  process id, the name of the system call and the
+  return value; you don't need to print the system call
+  arguments. The <tt>trace</tt> system call should enable tracing 
+  for the process that calls it and any children that it subsequently forks,
+  but should not affect other processes.
+</div>
+
+<p>We provide a <tt>trace</tt> user-level program that runs another
+  program with tracing enabled (see <tt>user/trace.c</tt>). When you're
+  done, you should see output like this:
+
+<pre>
+$ trace 32 grep hello README
+3: syscall read -> 1023
+3: syscall read -> 966
+3: syscall read -> 70
+3: syscall read -> 0
+$
+$ trace 2147483647 grep hello README
+4: syscall trace -> 0
+4: syscall exec -> 3
+4: syscall open -> 3
+4: syscall read -> 1023
+4: syscall read -> 966
+4: syscall read -> 70
+4: syscall read -> 0
+4: syscall close -> 0
+$
+$ grep hello README
+$
+$ trace 2 usertests forkforkfork
+usertests starting
+test forkforkfork: 407: syscall fork -> 408
+408: syscall fork -> 409
+409: syscall fork -> 410
+410: syscall fork -> 411
+409: syscall fork -> 412
+410: syscall fork -> 413
+409: syscall fork -> 414
+411: syscall fork -> 415
+...
+$   
+</pre>
+
+<p>In the first example above, trace invokes grep tracing just the
+read system call. The 32 is <tt>1&lt;&lt;SYS_read</tt>. In the second
+example, trace runs grep while tracing all system calls; the
+2147483647 has all 31 low bits set. In the third example, the program
+isn't traced, so no trace output is printed. In the fourth example,
+the fork system calls of all the descendants of the <tt>forkforkfork</tt> test
+in <tt>usertests</tt> are being traced. Your solution is correct if your
+program behaves as shown above (though the process IDs may be
+different).
+
+<p>Some hints:
+  <ul>
+    <li><p>Add <tt>$U/_trace</tt> to UPROGS in Makefile
+    <li><p>Run <kbd>make qemu</kbd> and you will see that the
+    compiler cannot compile <tt>user/trace.c</tt>, because the
+    user-space stubs for the system call don't exist yet: add a
+    prototype for the system call to <tt>user/user.h</tt>, a stub
+    to <tt>user/usys.pl</tt>, and a syscall number
+    to <tt>kernel/syscall.h</tt>.  The Makefile invokes the perl
+    script <tt>user/usys.pl</tt>, which produces <tt>user/usys.S</tt>, 
+    the actual system call stubs, which use the
+    RISC-V <tt>ecall</tt> instruction to transition to the
+    kernel. Once you fix the compilation issues, 
+    run <kbd>trace 32 grep hello README</kbd>; it will fail
+    because you haven't implemented the system call in the kernel
+    yet.
+    <li><p>Add a <tt>sys_trace()</tt> function
+    in <tt>kernel/sysproc.c</tt> that implements the new system
+    call by remembering its argument in a new variable in
+    the <tt>proc</tt> structure (see <tt>kernel/proc.h</tt>). The
+    functions to retrieve system call arguments from user space are
+    in <tt>kernel/syscall.c</tt>, and you can see examples
+        of their use in <tt>kernel/sysproc.c</tt>.
+   </li>
+    <li><p>Modify <tt>fork()</tt> (see <tt>kernel/proc.c</tt>) to copy
+    the trace mask from the parent to the child process. </li>
+    <li><p>Modify the <tt>syscall()</tt> function
+    in <tt>kernel/syscall.c</tt> to print the trace output. You will need to add an array of syscall names to index into.</li>
+  </ul>
+## 题意
+
+
+
+## 过程
+
+1. 分支直接给了`user/trace.c`
+
+	```c
+	#include "../kernel/param.h"
+	#include "../kernel/types.h"
+	#include "../kernel/stat.h"
+	#include "../user/user.h"
+	
+	int
+	main(int argc, char *argv[])
+	{
+	  int i;
+	  char *nargv[MAXARG];
+	
+	  if(argc < 3 || (argv[1][0] < '0' || argv[1][0] > '9')){
+	    fprintf(2, "Usage: %s mask command\n", argv[0]);	// trace 命令格式
+	    exit(1);
+	  }
+	
+	  if (trace(atoi(argv[1])) < 0) {
+	    fprintf(2, "%s: trace failed\n", argv[0]);
+	    exit(1);
+	  }
+	  
+	  for(i = 2; i < argc && i < MAXARG; i++){
+	    nargv[i-2] = argv[i];
+	  }
+	  exec(nargv[0], nargv);	//执行trace 要追踪的命令
+	  exit(0);
+	}
+	
+	```
+
+	
+
+2. 先直接`make qemu`发现报错
+
+![image-20220409204019239](https://s2.loli.net/2022/04/09/pdSMXev78kUVLzw.png)
+
+2. 在`user/user.h`中添加系统调用
+
+```c
+//system call
+int trace(int);
+```
+
+3. 在`user/usys.pl`中添加入口`make qmue`后会生成`user/usys.S`
+
+```perl
+#!/usr/bin/perl -w
+
+# Generate usys.S, the stubs for syscalls.
+
+print "# generated by usys.pl - do not edit\n";
+
+print "#include \"kernel/syscall.h\"\n";
+
+sub entry {
+    my $name = shift;
+    print ".global $name\n";
+    print "${name}:\n";
+    print " li a7, SYS_${name}\n";
+    print " ecall\n";	# 进入内核
+    print " ret\n";
+}
+
+# 添加 trace 入口
+entry("trace"); 
+```
+
+4. `usys.S`中节选的`SYS_trace`调用
+
+```assembly
+.global trace # .global关键字用来让一个符号对链接器可见，可以供其他链接对象模块使用；告诉编译器后续跟的是一个全局可见的名字【变量/函数名】
+trace:
+ li a7, SYS_trace	# 将系统调用号通过 li(load imm)存入a7
+ ecall	# 使用ecall进入内核态    
+ ret	# 返回
+```
+
+5. 在`kernel/syscall.h`中定义系统调用号
+
+```c
+// System call numbers
+#define SYS_trace  22
+```
+
+6. 在`kernel/syscall.c`的`syscalls`函数指针数组中添加对应的函数。
+
+```c
+static uint64 (*syscalls[])(void) = {
+[SYS_trace]   sys_trace, //在数组中下标为22,对应SYS_sleep 22
+};
+```
+
+7. 在`kernel/syscall.c`的`syscall`函数中，先读取`trapframe->a7`获取系统调用号。添加追踪功能和识别名
+
+```c
+// 添加识别名
+char* syscalls_name[23] = {"", "fork", "exit", "wait", "pipe", "read", "kill", "exec",
+                      "fstat", "chdir", "dup", "getpid", "sbrk", "sleep", "uptime",
+                      "open", "write", "mknod", "unlink", "link", "mkdir", "close", "trace"};
+
+void
+syscall(void)
+{
+  int num;
+  struct proc *p = myproc();
+
+  num = p->trapframe->a7; //获取trace的系统调用号
+  if(num > 0 && num < NELEM(syscalls) && syscalls[num]) {
+    p->trapframe->a0 = syscalls[num](); //调用sys_trace
+	
+	//trace
+	if(p->mask & (1 << num))
+	{
+		printf("%d: syscall %s -> %d\n",p->pid,syscalls_name[num],p->trapframe->a0);
+	}
+  } else {
+    printf("%d %s: unknown sys call %d\n",
+            p->pid, p->name, num);
+    p->trapframe->a0 = -1;
+  }
+}
+```
+
+8. 之后根据该系统调用号在`kernel/sysproc.c`查找`syscalls`数组中的对应的处理函数并调用。
+
+```c
+uint64
+sys_trace(void)
+{
+	int n;
+	if(argint(0, &n) < 0) //argin 获取参数
+      return -1;
+	myproc()->mask = n;
+
+	return 0;
+}
+```
+
