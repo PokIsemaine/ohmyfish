@@ -17,6 +17,20 @@
 
 
 
+### 代码：erase 删除
+
+```cpp
+for(map<int,int>::iterator it = mapInt.begin(); it != mapInt.end();) {
+    if(it->second == 0) {
+        mapInt.erase(it++);
+    } else {
+        it++;
+    }
+}
+```
+
+
+
 ## multimap
 
 `multimap` 的特性以及用法和`map`完全相同，唯一的差别在于它允许键值重复，因此它采用的底层机制是`RB-tree`的`insert_equal()`而非`insert_unique()`
