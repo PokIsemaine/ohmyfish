@@ -18,7 +18,7 @@
 
 ### Lab util: Unix utilities
 
-[sleep](/课堂之外/MIT/Lab1/Lab1%sleep.md)：尝试系统调用
+[sleep](/课堂之外/MIT/Lab1/Lab1%20sleep.md)：尝试系统调用
 
 [pingpong](/课堂之外/MIT/Lab1/Lab1%20pingpong.md)：利用 pipe 和 fork 实现进程通信
 
