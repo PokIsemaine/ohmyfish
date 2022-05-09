@@ -18,15 +18,15 @@
 
 ### Lab util: Unix utilities
 
-[sleep](/课堂之外/MIT/Lab1/Lab1%20sleep.md)：尝试系统调用
+[sleep](课堂之外/MIT6.S081/Lab1/Lab1%20sleep.md)：尝试系统调用
 
-[pingpong](/课堂之外/MIT/Lab1/Lab1%20pingpong.md)：利用 pipe 和 fork 实现进程通信
+[pingpong](/课堂之外/MIT6.S081//Lab1/Lab1%20pingpong.md)：利用 pipe 和 fork 实现进程通信
 
-[primes](/课堂之外/MIT/Lab1/Lab1%20primes.md)：利用管道实现并发素食筛
+[primes](/课堂之外/MIT6.S081//Lab1/Lab1%20primes.md)：利用管道实现并发素食筛
 
-[find](/课堂之外/MIT/Lab1/Lab1%20find.md)：实现简易版的 find
+[find](/课堂之外/MIT6.S081//Lab1/Lab1%20find.md)：实现简易版的 find
 
-[xargs](/课堂之外/MIT/Lab1/Lab1%20xargs.md)：实现简易版的 xargs
+[xargs](/课堂之外/MIT6.S081//Lab1/Lab1%20xargs.md)：实现简易版的 xargs
 
 ------
 
@@ -34,9 +34,9 @@
 
 ### Lab syscall: System calls
 
-[System call tracing](/课堂之外/MIT/Lab2/Lab2%20System%20call%20tracing.md)：实现简易版 strace 追踪系统调用
+[System call tracing](/课堂之外/MIT6.S081//Lab2/Lab2%20System%20call%20tracing.md)：实现简易版 strace 追踪系统调用
 
-[Sysinfo](/课堂之外/MIT/Lab2/Lab2%20Sysinfo.md)：打印系统信息
+[Sysinfo](/课堂之外/MIT6.S081//Lab2/Lab2%20Sysinfo.md)：打印系统信息
 
 ---
 
