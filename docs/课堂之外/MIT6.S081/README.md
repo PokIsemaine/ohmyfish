@@ -2,13 +2,13 @@
 
 ## xv6 笔记
 
-[Chapter 1 Operating system interfaces]()
+[Chapter 1 Operating system interfaces](/课堂之外/MIT6.S081/xv6%20book/Chapter1.md)
 
-[Chapter 2 Operating system organization]()
+[Chapter 2 Operating system organization](/课堂之外/MIT6.S081/xv6%20book/Chapter2.md)
 
-[Chapter 3 Page tables]()
+[Chapter 3 Page tables](/课堂之外/MIT6.S081/xv6%20book/Chapter3.md)
 
-[Chapter 4 Traps and system calls]()
+[Chapter 4 Traps and system calls](/课堂之外/MIT6.S081/xv6%20book/Chapter4.md)
 
 ------
 
