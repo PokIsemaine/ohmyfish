@@ -56,7 +56,7 @@
 * [设计模式](/课堂之外/设计模式/README.md)
 * [MySql(MariaDB)]()
 * [工程管理](/课堂之外/工程管理/README.md)
-* [OSTEP 含MIT6.s081](/课堂之外/OSTEP/README.md)
+* [MIT6.s081](/课堂之外/MIT/README.md)
 
 ### 项目准备
 
