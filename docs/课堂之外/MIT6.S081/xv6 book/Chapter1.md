@@ -2,19 +2,19 @@
 
 An operation system provides services to user program through an interface
 
-![image-20220419225505233](../../../../../../.config/Typora/typora-user-images/image-20220419225505233.png)
+![image-20220419225505233](https://s2.loli.net/2022/05/09/SUksVZMCQe8JTIu.png)
 
 
 
 ## 1.1 Processes and memory
 
-![image-20220426131157717](../../../../../../.config/Typora/typora-user-images/image-20220426131157717.png)
+![image-20220426131157717](https://s2.loli.net/2022/05/09/63wKpjo9JFLOWtc.png)
 
 操作系统：状态机的管理者
 
 - fork 状态机复制包括持有的所有操作系统对象
 - execve “重置” 状态机，但继承持有的所有操作系统对象
-- wai t
+- wait
 
 
 
