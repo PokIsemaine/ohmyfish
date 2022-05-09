@@ -449,7 +449,261 @@ fetchstr(uint64 addr, char *buf, int max)
 
 ## Traps from kernel space
 
+Xv6 configures the CPU trap registers somewhat differently depending on whether user or kernel code is executing. When the kernel is executing on a CPU, **the kernel points stvec to the assembly code at kernelvec** (kernel/kernelvec.S:10). Since xv6 is already in the kernel, kernelvec can rely on **satp being set to the kernel page table, and on the stack pointer referring to a valid kernel stack.**
+
+**kernelvec pushes all 32 registers onto the stack**, from which it will later restore them so that the interrupted kernel code can resume without disturbance.
+
+kernelvec saves the registers on the stack of the interrupted kernel thread, which makes sense because the register values belong to that thread. This is particularly important if the trap causes a switch to a different thread – in that case the trap will actually return from the stack of the new thread, leaving the interrupted thread’s saved registers safely on its stack.
+
+
+
+## ![trapfromkernel](https://s2.loli.net/2022/05/03/TNHeznLX4UmRyEl.png)
+
+
+
+
+
+```assembly
+	#
+        # interrupts and exceptions while in supervisor
+        # mode come here.
+        #
+        # push all registers, call kerneltrap(), restore, return.
+        #
+.globl kerneltrap
+.globl kernelvec
+.align 4
+kernelvec:
+        // make room to save registers.
+        addi sp, sp, -256
+
+        // save the registers.
+        sd ra, 0(sp)
+        sd sp, 8(sp)
+        sd gp, 16(sp)
+        sd tp, 24(sp)
+        sd t0, 32(sp)
+        sd t1, 40(sp)
+        sd t2, 48(sp)
+        sd s0, 56(sp)
+        sd s1, 64(sp)
+        sd a0, 72(sp)
+        sd a1, 80(sp)
+        sd a2, 88(sp)
+        sd a3, 96(sp)
+        sd a4, 104(sp)
+        sd a5, 112(sp)
+        sd a6, 120(sp)
+        sd a7, 128(sp)
+        sd s2, 136(sp)
+        sd s3, 144(sp)
+        sd s4, 152(sp)
+        sd s5, 160(sp)
+        sd s6, 168(sp)
+        sd s7, 176(sp)
+        sd s8, 184(sp)
+        sd s9, 192(sp)
+        sd s10, 200(sp)
+        sd s11, 208(sp)
+        sd t3, 216(sp)
+        sd t4, 224(sp)
+        sd t5, 232(sp)
+        sd t6, 240(sp)
+
+	// call the C trap handler in trap.c
+        call kerneltrap
+
+        // restore registers.
+        ld ra, 0(sp)
+        ld sp, 8(sp)
+        ld gp, 16(sp)
+        // not this, in case we moved CPUs: ld tp, 24(sp)
+        ld t0, 32(sp)
+        ld t1, 40(sp)
+        ld t2, 48(sp)
+        ld s0, 56(sp)
+        ld s1, 64(sp)
+        ld a0, 72(sp)
+        ld a1, 80(sp)
+        ld a2, 88(sp)
+        ld a3, 96(sp)
+        ld a4, 104(sp)
+        ld a5, 112(sp)
+        ld a6, 120(sp)
+        ld a7, 128(sp)
+        ld s2, 136(sp)
+        ld s3, 144(sp)
+        ld s4, 152(sp)
+        ld s5, 160(sp)
+        ld s6, 168(sp)
+        ld s7, 176(sp)
+        ld s8, 184(sp)
+        ld s9, 192(sp)
+        ld s10, 200(sp)
+        ld s11, 208(sp)
+        ld t3, 216(sp)
+        ld t4, 224(sp)
+        ld t5, 232(sp)
+        ld t6, 240(sp)
+
+        addi sp, sp, 256
+
+        // return to whatever we were doing in the kernel.
+        sret
+```
+
+
+
+```c
+// interrupts and exceptions from kernel code go here via kernelvec,
+// on whatever the current kernel stack is.
+void 
+kerneltrap()
+{
+  int which_dev = 0;
+  uint64 sepc = r_sepc();
+  uint64 sstatus = r_sstatus();
+  uint64 scause = r_scause();
+  
+  if((sstatus & SSTATUS_SPP) == 0)
+    panic("kerneltrap: not from supervisor mode");
+  if(intr_get() != 0)
+    panic("kerneltrap: interrupts enabled");
+
+  if((which_dev = devintr()) == 0){
+    printf("scause %p\n", scause);
+    printf("sepc=%p stval=%p\n", r_sepc(), r_stval());
+    panic("kerneltrap");
+  }
+
+  // give up the CPU if this is a timer interrupt.
+  if(which_dev == 2 && myproc() != 0 && myproc()->state == RUNNING)
+    yield();
+
+  // the yield() may have caused some traps to occur,
+  // so restore trap registers for use by kernelvec.S's sepc instruction.
+  w_sepc(sepc);
+  w_sstatus(sstatus);
+}
+```
+
+
+
+```c
+// check if it's an external interrupt or software interrupt,
+// and handle it.
+// returns 2 if timer interrupt,
+// 1 if other device,
+// 0 if not recognized.
+int
+devintr()
+{
+  uint64 scause = r_scause();
+
+  if((scause & 0x8000000000000000L) &&
+     (scause & 0xff) == 9){
+    // this is a supervisor external interrupt, via PLIC.
+
+    // irq indicates which device interrupted.
+    int irq = plic_claim();
+
+    if(irq == UART0_IRQ){
+      uartintr();
+    } else if(irq == VIRTIO0_IRQ){
+      virtio_disk_intr();
+    } else if(irq){
+      printf("unexpected interrupt irq=%d\n", irq);
+    }
+
+    // the PLIC allows each device to raise at most one
+    // interrupt at a time; tell the PLIC the device is
+    // now allowed to interrupt again.
+    if(irq)
+      plic_complete(irq);
+
+    return 1;
+  } else if(scause == 0x8000000000000001L){
+    // software interrupt from a machine-mode timer interrupt,
+    // forwarded by timervec in kernelvec.S.
+
+    if(cpuid() == 0){
+      clockintr();
+    }
+    
+    // acknowledge the software interrupt by clearing
+    // the SSIP bit in sip.
+    w_sip(r_sip() & ~2);
+
+    return 2;
+  } else {
+    return 0;
+  }
+}
+
+```
+
 
 
 ## Page-fault exceptions
 
+Xv6’s response to exceptions is quite boring: 
+
+* if an exception happens in user space, the kernel kills the faulting process. 
+
+* If an exception happens in the kernel, the kernel panics. 
+
+	
+
+Real operating systems often respond in much more interesting ways.
+
+
+
+The CPU raises a **page-fault exception** when a virtual address is used that has no mapping in the page table, or has a mapping whose PTE_V flag is clear, or a mapping whose permission bits (PTE_R, PTE_W, PTE_X, PTE_U) forbid the operation being attempted. 
+
+RISC-V distinguishes three kinds of page fault: 
+
+* **load page faults** (when a load instruction cannot translate its virtual address)
+*  **store page faults** (when a store instruction cannot translate its virtual address)
+* **instruction page faults** (when the address in the program counter doesn’t translate). 
+
+The `scause` register indicates the type of the page fault and the `stval` register contains the address that couldn’t be translated.
+
+
+
+### COW fork
+
+The basic plan in COW fork is for the parent and child to initially share all physical pages, but for each to map them read-only (with the PTE_W flag clear). Parent and child can read from the shared physical memory. 
+
+**If either writes a given page, the RISC-V CPU raises a page-fault exception. The kernel’s trap handler responds by allocating a new page of physical memory and copying into it the physical page that the faulted address maps to.**
+
+ The kernel changes the relevant PTE in the faulting process’s page table to point to the copy and to allow writes as well as reads, and then resumes the faulting process at the instruction that caused the fault. Because the PTE allows writes, the re-executed instruction will now execute without a fault. 
+
+Copy-on-write requires book-keeping to help decide when physical pages can be freed, since each page can be referenced by a varying number of page tables depending on the history of forks, page faults, execs, and exits. This book-keeping allows an important optimization: if a process incurs a store page fault and the physical page is only referred to from that process’s page table, no copy is needed.
+
+
+
+Copy-on-write makes fork faster, since fork need not copy memory.  
+
+COW fork is transparent: no modifications to applications are necessary for them to benefit.
+
+
+
+### lazy allocation
+
+The combination of page tables and page faults opens up a wide range of interesting possibilities in addition to COW fork. **Another widely-used feature is called lazy allocation, which has two parts**. First, when an application asks for more memory by calling sbrk, the kernel notes the  increase in size, but does not allocate physical memory and does not create PTEs for the new range of virtual addresses. Second, on a page fault on one of those new addresses, the kernel allocates a page of physical memory and maps it into the page table. Like COW fork, the kernel can implement lazy allocation transparently to applications
+
+Since applications often ask for more memory than they need, lazy allocation is a win: the kernel doesn’t have to do any work at all for pages that the application never uses. Furthermore, if the application is asking to grow the address space by a lot, then sbrk without lazy allocation is expensive: if an application asks for a gigabyte of memory, the kernel has to allocate and zero 262,144 4096-byte pages. Lazy allocation allows this cost to be spread over time. On the other hand, lazy allocation incurs the extra overhead of page faults, which involve a kernel/user transition. Operating systems can reduce this cost by allocating a batch of consecutive pages per page fault instead of one page and by specializing the kernel entry/exit code for such page-faults.
+
+### demand paging
+
+Yet another widely-used feature that exploits page faults is demand paging. In exec, xv6 loads all text and data of an application eagerly into memory. Since applications can be large and reading from disk is expensive, this startup cost may be noticeable to users: when the user starts a large application from the shell, it may take a long time before user sees a response. To improve response time, a modern kernel creates the page table for the user address space, but marks the PTEs for the pages invalid. On a page fault, the kernel reads the content of the page from disk and maps it into the user address space. Like COW fork and lazy allocation, the kernel can implement this feature transparently to applications.
+
+The programs running on a computer may need more memory than the computer has RAM. To cope gracefully, the operating system may implement paging to disk. The idea is to store only a fraction of user pages in RAM, and to store the rest on disk in a paging area. The kernel marks PTEs that correspond to memory stored in the paging area (and thus not in RAM) as invalid. If an application tries to use one of the pages that has been paged out to disk, the application will incur a page fault, and the page must be paged in: the kernel trap handler will allocate a page of physical RAM, read the page from disk into the RAM, and modify the relevant PTE to point to the RAM. 
+
+What happens if a page needs to be paged in, but there is no free physical RAM? In that case, the kernel must first free a physical page by paging it out or evicting it to the paging area on disk, and marking the PTEs referring to that physical page as invalid. Eviction is expensive, so paging performs best if it’s infrequent: if applications use only a subset of their memory pages and the union of the subsets fits in RAM. This property is often referred to as having good locality of reference. As with many virtual memory techniques, kernels usually implement paging to disk in a way that’s transparent to applications.
+
+ Computers often operate with little or no free physical memory, regardless of how much RAM the hardware provides. For example, cloud providers multiplex many customers on a single machine to use their hardware cost-effectively. As another example, users run many applications on smart phones in a small amount of physical memory. In such settings allocating a page may require first evicting an existing page. Thus, when free physical memory is scarce, allocation is expensive.
+
+
+
+Lazy allocation and demand paging are particularly advantageous when free memory is scarce. Eagerly allocating memory in sbrk or exec incurs the extra cost of eviction to make memory available. Furthermore, there is a risk that the eager work is wasted, because before the application 50 uses the page, the operating system may have evicted it. Other features that combine paging and page-fault exceptions include automatically extending stacks and memory-mapped files.

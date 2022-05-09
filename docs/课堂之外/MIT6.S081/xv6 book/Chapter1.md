@@ -10,8 +10,6 @@ An operation system provides services to user program through an interface
 
 ![image-20220426131157717](../../../../../../.config/Typora/typora-user-images/image-20220426131157717.png)
 
-### 
-
 操作系统：状态机的管理者
 
 - fork 状态机复制包括持有的所有操作系统对象
