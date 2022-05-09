@@ -1,5 +1,6 @@
-<h1>Lab: Xv6 and Unix utilities</h1>
-<h2>primes <script>g("moderate")</script><script>g("hard")</script></h2>
+# Lab: Xv6 and Unix utilities
+
+## primesg
 
 <div class="required">
   <p>Write a concurrent version of prime sieve using pipes.  This idea

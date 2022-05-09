@@ -1,5 +1,6 @@
-<h1>Lab: Xv6 and Unix utilities</h1>
-<h2>sleep <script>g("easy")</script></h2>
+# Lab: Xv6 and Unix utilities
+
+## sleep 
 
 <div class="required">
 <p>Implement the UNIX program <tt>sleep</tt> for xv6; your <tt>sleep</tt> should pause

@@ -1,4 +1,6 @@
-# Backtrace ([moderate](https://pdos.csail.mit.edu/6.S081/2021/labs/guidance.html))
+# Lab4 trap
+
+## Backtrace ([moderate](https://pdos.csail.mit.edu/6.S081/2021/labs/guidance.html))
 
 For debugging it is often useful to have a `backtrace`: a list of the function calls on the stack above the point at which the error occurred.
 

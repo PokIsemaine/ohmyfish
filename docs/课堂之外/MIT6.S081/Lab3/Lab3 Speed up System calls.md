@@ -1,6 +1,6 @@
-<h1>Lab 3 page table</h1>
+# Lab3 page table
 
- <h2>Speed up system calls</h2>
+## Speed up system calls
 
 Some operating systems (e.g., Linux) speed up certain system calls by sharing data in a read-only region between userspace and the kernel. This eliminates the need for kernel crossings when performing these system calls. To help you learn how to insert mappings into a page table, your first task is to implement this optimization for the `getpid()` system call in xv6.
 

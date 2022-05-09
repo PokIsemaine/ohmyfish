@@ -1,6 +1,6 @@
-<h1>Lab3 page table</h1>
+# Lab3 page table
 
-<h2>Print a page table</h2>
+## Print a page table
 
 To help you visualize RISC-V page tables, and perhaps to aid future debugging, your second task is to write a function that prints the contents of a page table.
 

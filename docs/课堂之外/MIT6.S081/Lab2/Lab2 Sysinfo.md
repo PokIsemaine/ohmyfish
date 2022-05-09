@@ -1,5 +1,7 @@
-<h1>Lab: system calls</h1>
-<h2>Sysinfo <script>g("moderate")</script></h2>
+# Lab: system calls
+
+## Sysinfo 
+
 <p>
 <div class="required">
   In this assignment you will add a system call, <tt>sysinfo</tt>,

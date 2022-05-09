@@ -1,5 +1,6 @@
-<h1>Lab: Xv6 and Unix utilities</h1>
-<h2>pingpong <script>g("easy")</script></h2>
+# Lab: Xv6 and Unix utilities
+
+## pingpong
 
 <div class="required">
 <p> Write a program that uses UNIX system calls to ''ping-pong'' a

@@ -1,5 +1,5 @@
-<h1>Lab: system calls</h1>
-<h2>System call tracing <script>g("moderate")</script></h2>
+# Lab: system calls
+## System call tracing
 
 <p>
 <div class="required">

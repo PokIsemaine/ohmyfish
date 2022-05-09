@@ -1,5 +1,6 @@
-<h1>Lab: Xv6 and Unix utilities</h1>
-<h2>xargs <script>g("moderate")</script></h2>
+# Lab: Xv6 and Unix utilities
+
+xargs
 
 <div class="required">
 <p>Write a simple version of the UNIX xargs program: read lines from

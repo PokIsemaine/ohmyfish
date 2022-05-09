@@ -1,6 +1,6 @@
-<h1>Lab3 page table</h1>
+# Lab3 page table
 
-<h2> Detecting which pages have been accessed</h2>
+## Detecting which pages have been accessed
 
 Some garbage collectors (a form of automatic memory management) can benefit from information about which pages have been accessed (read or write). In this part of the lab, you will add a new feature to xv6 that detects and reports this information to userspace by inspecting the access bits in the RISC-V page table. The RISC-V hardware page walker marks these bits in the PTE whenever it resolves a TLB miss.
 

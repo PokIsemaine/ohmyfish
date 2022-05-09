@@ -1,4 +1,6 @@
-# RISC-V assembly ([easy](https://pdos.csail.mit.edu/6.S081/2021/labs/guidance.html))
+# Lab4 trap
+
+## RISC-V assembly ([easy](https://pdos.csail.mit.edu/6.S081/2021/labs/guidance.html))
 
 It will be important to understand a bit of RISC-V assembly, which you were exposed to in 6.004. There is a file `user/call.c` in your xv6 repo. make fs.img compiles it and also produces a readable assembly version of the program in `user/call.asm`.
 

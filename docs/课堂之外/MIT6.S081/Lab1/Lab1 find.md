@@ -1,7 +1,8 @@
 
 
-<h1>Lab: Xv6 and Unix utilities</h1>
-<h2>find <script>g("moderate")</script></h2>
+# Lab: Xv6 and Unix utilities
+
+## find
 
 <div class="required">
 <p>Write a simple version of the UNIX find program: find all the files
