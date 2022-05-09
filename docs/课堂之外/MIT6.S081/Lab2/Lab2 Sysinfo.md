@@ -1,49 +1,28 @@
 # Lab: system calls
 
-## Sysinfo 
+## Sysinfo ([moderate](https://pdos.csail.mit.edu/6.S081/2021/labs/guidance.html))
 
-<p>
-<div class="required">
-  In this assignment you will add a system call, <tt>sysinfo</tt>,
-  that collects information about the running system.  The system call
-  takes one argument: a pointer to a <tt>struct sysinfo</tt>
-  (see <tt>kernel/sysinfo.h</tt>). The kernel should fill out the
-  fields of this struct: the <tt>freemem</tt> field should be set
-  to the number of bytes of free memory, and the <tt>nproc</tt>
-  field should be set to the number of processes whose <tt>state</tt>
-  is not <tt>UNUSED</tt>.
-  We provide a test program <tt>sysinfotest</tt>; you pass this
-  assignment if it prints "sysinfotest: OK".
-</div>
-<p>Some hints:
-<ul>
-<li><p>Add <tt>$U/_sysinfotest</tt> to UPROGS in Makefile
-<li><p>Run <kbd>make qemu</kbd>; <tt>user/sysinfotest.c</tt> will
-  fail to compile. Add the system call sysinfo, following the same
-  steps as in the previous assignment. To declare the prototype for
-  sysinfo() <tt>in user/user.h</tt> you need predeclare the existence
-  of <tt>struct sysinfo</tt>:
-  <pre>
-    struct sysinfo;
-    int sysinfo(struct sysinfo *);
-  </pre>
-Once you fix the compilation issues, run
-  <kbd>sysinfotest</kbd>; it will fail because you haven't
-  implemented the system call in the kernel yet.
-</li>
-<li><p>sysinfo needs to copy a <tt>struct sysinfo</tt> back to user
-  space; see <tt>sys_fstat()</tt> (<tt>kernel/sysfile.c</tt>)
-  and <tt>filestat()</tt> (<tt>kernel/file.c</tt>) for examples of how
-  to do that using <tt>copyout()</tt>.
-</li>
-<li><p>To collect the amount of free memory, add a
-  function to <tt>kernel/kalloc.c</tt>
-</li>
-<li><p>To collect the number of processes, add a
-  function to <tt>kernel/proc.c</tt>
-</li>
-</ul>
+In this assignment you will add a system call, `sysinfo`, that collects information about the running system. The system call takes one argument: a pointer to a `struct sysinfo` (see `kernel/sysinfo.h`). The kernel should fill out the fields of this struct: the `freemem` field should be set to the number of bytes of free memory, and the `nproc` field should be set to the number of processes whose `state` is not `UNUSED`. We provide a test program `sysinfotest`; you pass this assignment if it prints "sysinfotest: OK".
 
+Some hints:
+
+- Add `$U/_sysinfotest` to UPROGS in Makefile
+
+- Run make qemu; `user/sysinfotest.c` will fail to compile. Add the system call sysinfo, following the same steps as in the previous assignment. To declare the prototype for sysinfo() `in user/user.h` you need predeclare the existence of `struct sysinfo`:
+
+	```
+	    struct sysinfo;
+	    int sysinfo(struct sysinfo *);
+	  
+	```
+
+	Once you fix the compilation issues, run sysinfotest; it will fail because you haven't implemented the system call in the kernel yet.
+
+- sysinfo needs to copy a `struct sysinfo` back to user space; see `sys_fstat()` (`kernel/sysfile.c`) and `filestat()` (`kernel/file.c`) for examples of how to do that using `copyout()`.
+
+- To collect the amount of free memory, add a function to `kernel/kalloc.c`
+
+- To collect the number of processes, add a function to `kernel/proc.c`
 
 ## 题意
 
@@ -64,8 +43,6 @@ int sysinfo(struct sysinfo *);
 ## 过程
 
 ### step1 查看`sysinfotest.c`
-
-
 
 ```c
 #include "../kernel/types.h"

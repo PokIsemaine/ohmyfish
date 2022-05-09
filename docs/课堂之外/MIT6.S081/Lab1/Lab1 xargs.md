@@ -1,71 +1,62 @@
 # Lab: Xv6 and Unix utilities
 
-xargs
+## xargs ([moderate](https://pdos.csail.mit.edu/6.S081/2021/labs/guidance.html))
 
-<div class="required">
-<p>Write a simple version of the UNIX xargs program: read lines from
-  the standard input and run a command for each line, supplying the line as
-  arguments to the command.   Your solution
-  should be in the file <tt>user/xargs.c</tt>.
-</div>
+Write a simple version of the UNIX xargs program: read lines from the standard input and run a command for each line, supplying the line as arguments to the command. Your solution should be in the file `user/xargs.c`.
 
-  The following example illustrates xarg's
-  behavior:
-  <pre>
-    $ <kbd>echo hello too | xargs echo bye</kbd>
+The following example illustrates xarg's behavior:
+
+```
+    $ echo hello too | xargs echo bye
     bye hello too
     $
-  </pre>
-  Note that the command here is "echo bye" and the additional
-  arguments are "hello too", making the command "echo bye hello too",
-  which outputs "bye hello too".
+  
+```
 
-  <p> Please note that xargs on UNIX makes an optimization where it will feed more than argument to the command at a time. We don't expect you to make this optimization. To make xargs on UNIX behave the way we want it to for this lab, please run it with the -n option set to 1. For instance</p>
-  <pre>
-    $ <kbd>echo "1\n2" | xargs -n 1 echo line</kbd>
+Note that the command here is "echo bye" and the additional arguments are "hello too", making the command "echo bye hello too", which outputs "bye hello too".
+
+Please note that xargs on UNIX makes an optimization where it will feed more than argument to the command at a time. We don't expect you to make this optimization. To make xargs on UNIX behave the way we want it to for this lab, please run it with the -n option set to 1. For instance
+
+```
+    $ echo "1\n2" | xargs -n 1 echo line
     line 1
     line 2
     $
-  </pre>  
+  
+```
 
-<p>Some hints:
-  <ul>
-    <li>Use <tt>fork</tt> and <tt>exec</tt> to invoke the
-      command on each line of input.  Use <tt>wait</tt> in the parent
-      to wait for the child to complete the command.
-    <li>To read individual lines of input, read a character at a time
-        until a newline ('\n') appears.
-    <li>kernel/param.h declares MAXARG, which may be useful if you need
-      to declare an argv array.
-    <li>Add the program to <tt>UPROGS</tt> in Makefile.
-    <li>Changes to the file system persist across runs of qemu; to get
-    a clean file system run <kdb>make clean</kdb> and then <kdb>make qemu</kdb>.
-  </ul>
+Some hints:
 
-<p>xargs, find, and grep combine well:
-  <pre>
-  $ <kbd>find . b | xargs grep hello</kbd>
-  </pre>
-  will run "grep hello" on each file named b in the directories below
-  ".".
+- Use `fork` and `exec` to invoke the command on each line of input. Use `wait` in the parent to wait for the child to complete the command.
+- To read individual lines of input, read a character at a time until a newline ('\n') appears.
+- kernel/param.h declares MAXARG, which may be useful if you need to declare an argv array.
+- Add the program to `UPROGS` in Makefile.
+- Changes to the file system persist across runs of qemu; to get a clean file system run make clean and then make qemu.
 
-<p>To test your solution for xargs, run the shell script xargstest.sh.
-Your solution is correct if it produces the following output:
-  <pre>
-  $ <kbd>make qemu</kbd>
+xargs, find, and grep combine well:
+
+```
+  $ find . b | xargs grep hello
+  
+```
+
+will run "grep hello" on each file named b in the directories below ".".
+
+To test your solution for xargs, run the shell script xargstest.sh. Your solution is correct if it produces the following output:
+
+```
+  $ make qemu
   ...
   init: starting sh
-  $ <kbd>sh < xargstest.sh</kbd>
+  $ sh < xargstest.sh
   $ $ $ $ $ $ hello
   hello
   hello
   $ $   
-  </pre>
-You may have to go back and fix bugs in your find program.  The output has
-many <tt>$</tt> because the xv6 shell doesn't realize
-it is processing commands from a file instead of from the console, and
-prints a <tt>$</tt> for each command in the file.
+  
+```
 
+You may have to go back and fix bugs in your find program. The output has many `$` because the xv6 shell doesn't realize it is processing commands from a file instead of from the console, and prints a `$` for each command in the file.
 
 ## 前置知识
 

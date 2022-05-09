@@ -2,39 +2,36 @@
 
 # Lab: Xv6 and Unix utilities
 
-## find
+## find ([moderate](https://pdos.csail.mit.edu/6.S081/2021/labs/guidance.html))
 
-<div class="required">
-<p>Write a simple version of the UNIX find program: find all the files
-  in a directory tree with a specific name.  Your solution
-  should be in the file <tt>user/find.c</tt>.
-<p>Some hints:
-  <ul>
-    <li>Look at user/ls.c to see how to read directories.
-    <li>Use recursion to allow find to descend into sub-directories.
-    <li>Don't recurse into "." and "..".
-    <li>Changes to the file system persist across runs of qemu; to get
-    a clean file system run <kbd>make clean</kbd> and then <kbd>make qemu</kbd>.
-    <li>You'll need to use C strings. Have a look at K&R (the C book),
-      for example Section 5.5.
-    <li> Note that == does not compare strings like in Python. Use strcmp() instead.
-    <li>Add the program to <tt>UPROGS</tt> in Makefile.
-  </ul>
+Write a simple version of the UNIX find program: find all the files in a directory tree with a specific name. Your solution should be in the file `user/find.c`.
 
-<p>Your solution is correct if produces the following output (when the
-  file system contains the files <tt>b</tt> and <tt>a/b</tt>):
-  <pre>
-    $ <kbd>make qemu</kbd>
+Some hints:
+
+- Look at user/ls.c to see how to read directories.
+- Use recursion to allow find to descend into sub-directories.
+- Don't recurse into "." and "..".
+- Changes to the file system persist across runs of qemu; to get a clean file system run make clean and then make qemu.
+- You'll need to use C strings. Have a look at K&R (the C book), for example Section 5.5.
+- Note that == does not compare strings like in Python. Use strcmp() instead.
+- Add the program to `UPROGS` in Makefile.
+
+Your solution is correct if produces the following output (when the file system contains the files `b` and `a/b`):
+
+```
+    $ make qemu
     ...
     init: starting sh
-    $ <kbd>echo > b</kbd>
-    $ <kbd>mkdir a</kbd>
-    $ <kbd>echo > a/b</kbd>
-    $ <kbd>find . b</kbd>
+    $ echo > b
+    $ mkdir a
+    $ echo > a/b
+    $ find . b
     ./b
     ./a/b
     $ 
-  </pre>
+```
+
+## 过程
 
 照着`ls.c`改一下就可以啦
 

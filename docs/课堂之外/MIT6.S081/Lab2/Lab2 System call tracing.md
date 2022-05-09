@@ -1,30 +1,11 @@
 # Lab: system calls
-## System call tracing
+## System call tracing ([moderate](https://pdos.csail.mit.edu/6.S081/2021/labs/guidance.html))
 
-<p>
-<div class="required">
-  In this assignment you will add a system call tracing feature that
-  may help you when debugging later labs.  You'll create a
-  new <tt>trace</tt> system call that will control tracing. It should
-  take one argument, an integer "mask", whose bits specify which
-  system calls to trace.  For example, to trace the fork system call,
-  a program calls <tt>trace(1 << SYS_fork)</tt>, where <tt>SYS_fork</tt> is a
-  syscall number from <tt>kernel/syscall.h</tt>. You have to modify
-  the xv6 kernel to print out a line when each system call is about to
-  return, if the system call's number is set in the mask.
-  The line should contain the
-  process id, the name of the system call and the
-  return value; you don't need to print the system call
-  arguments. The <tt>trace</tt> system call should enable tracing 
-  for the process that calls it and any children that it subsequently forks,
-  but should not affect other processes.
-</div>
+In this assignment you will add a system call tracing feature that may help you when debugging later labs. You'll create a new `trace` system call that will control tracing. It should take one argument, an integer "mask", whose bits specify which system calls to trace. For example, to trace the fork system call, a program calls `trace(1 << SYS_fork)`, where `SYS_fork` is a syscall number from `kernel/syscall.h`. You have to modify the xv6 kernel to print out a line when each system call is about to return, if the system call's number is set in the mask. The line should contain the process id, the name of the system call and the return value; you don't need to print the system call arguments. The `trace` system call should enable tracing for the process that calls it and any children that it subsequently forks, but should not affect other processes.
 
-<p>We provide a <tt>trace</tt> user-level program that runs another
-  program with tracing enabled (see <tt>user/trace.c</tt>). When you're
-  done, you should see output like this:
+We provide a `trace` user-level program that runs another program with tracing enabled (see `user/trace.c`). When you're done, you should see output like this:
 
-<pre>
+```
 $ trace 32 grep hello README
 3: syscall read -> 1023
 3: syscall read -> 966
@@ -55,49 +36,17 @@ test forkforkfork: 407: syscall fork -> 408
 411: syscall fork -> 415
 ...
 $   
-</pre>
+```
 
-<p>In the first example above, trace invokes grep tracing just the
-read system call. The 32 is <tt>1&lt;&lt;SYS_read</tt>. In the second
-example, trace runs grep while tracing all system calls; the
-2147483647 has all 31 low bits set. In the third example, the program
-isn't traced, so no trace output is printed. In the fourth example,
-the fork system calls of all the descendants of the <tt>forkforkfork</tt> test
-in <tt>usertests</tt> are being traced. Your solution is correct if your
-program behaves as shown above (though the process IDs may be
-different).
+In the first example above, trace invokes grep tracing just the read system call. The 32 is `1<<SYS_read`. In the second example, trace runs grep while tracing all system calls; the 2147483647 has all 31 low bits set. In the third example, the program isn't traced, so no trace output is printed. In the fourth example, the fork system calls of all the descendants of the `forkforkfork` test in `usertests` are being traced. Your solution is correct if your program behaves as shown above (though the process IDs may be different).
 
-<p>Some hints:
-  <ul>
-    <li><p>Add <tt>$U/_trace</tt> to UPROGS in Makefile
-    <li><p>Run <kbd>make qemu</kbd> and you will see that the
-    compiler cannot compile <tt>user/trace.c</tt>, because the
-    user-space stubs for the system call don't exist yet: add a
-    prototype for the system call to <tt>user/user.h</tt>, a stub
-    to <tt>user/usys.pl</tt>, and a syscall number
-    to <tt>kernel/syscall.h</tt>.  The Makefile invokes the perl
-    script <tt>user/usys.pl</tt>, which produces <tt>user/usys.S</tt>, 
-    the actual system call stubs, which use the
-    RISC-V <tt>ecall</tt> instruction to transition to the
-    kernel. Once you fix the compilation issues, 
-    run <kbd>trace 32 grep hello README</kbd>; it will fail
-    because you haven't implemented the system call in the kernel
-    yet.
-    <li><p>Add a <tt>sys_trace()</tt> function
-    in <tt>kernel/sysproc.c</tt> that implements the new system
-    call by remembering its argument in a new variable in
-    the <tt>proc</tt> structure (see <tt>kernel/proc.h</tt>). The
-    functions to retrieve system call arguments from user space are
-    in <tt>kernel/syscall.c</tt>, and you can see examples
-        of their use in <tt>kernel/sysproc.c</tt>.
-   </li>
-    <li><p>Modify <tt>fork()</tt> (see <tt>kernel/proc.c</tt>) to copy
-    the trace mask from the parent to the child process. </li>
-    <li><p>Modify the <tt>syscall()</tt> function
-    in <tt>kernel/syscall.c</tt> to print the trace output. You will need to add an array of syscall names to index into.</li>
-  </ul>
-## 题意
+Some hints:
 
+- Add `$U/_trace` to UPROGS in Makefile
+- Run make qemu and you will see that the compiler cannot compile `user/trace.c`, because the user-space stubs for the system call don't exist yet: add a prototype for the system call to `user/user.h`, a stub to `user/usys.pl`, and a syscall number to `kernel/syscall.h`. The Makefile invokes the perl script `user/usys.pl`, which produces `user/usys.S`, the actual system call stubs, which use the RISC-V `ecall` instruction to transition to the kernel. Once you fix the compilation issues, run trace 32 grep hello README; it will fail because you haven't implemented the system call in the kernel yet.
+- Add a `sys_trace()` function in `kernel/sysproc.c` that implements the new system call by remembering its argument in a new variable in the `proc` structure (see `kernel/proc.h`). The functions to retrieve system call arguments from user space are in `kernel/syscall.c`, and you can see examples of their use in `kernel/sysproc.c`.
+- Modify `fork()` (see `kernel/proc.c`) to copy the trace mask from the parent to the child process.
+- Modify the `syscall()` function in `kernel/syscall.c` to print the trace output. You will need to add an array of syscall names to index into.
 
 
 ## 过程

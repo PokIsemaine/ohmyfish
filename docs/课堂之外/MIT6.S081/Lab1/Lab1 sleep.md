@@ -1,71 +1,49 @@
 # Lab: Xv6 and Unix utilities
 
-## sleep 
+## sleep ([easy](https://pdos.csail.mit.edu/6.S081/2021/labs/guidance.html))
 
-<div class="required">
-<p>Implement the UNIX program <tt>sleep</tt> for xv6; your <tt>sleep</tt> should pause
-  for a user-specified number of ticks.  A tick is a notion of time
-  defined by the xv6 kernel, namely the time between two interrupts
-  from the timer chip.  Your solution should be in the file
-  <tt>user/sleep.c</tt>.
-</div>
+Implement the UNIX program `sleep` for xv6; your `sleep` should pause for a user-specified number of ticks. A tick is a notion of time defined by the xv6 kernel, namely the time between two interrupts from the timer chip. Your solution should be in the file `user/sleep.c`.
 
 
 
-<p>Some hints:
-  <ul>
-    <li>Before you start coding, read Chapter 1 of
-    the <a href="../xv6/book-riscv-rev2.pdf">xv6 book</a>.
-    <li>Look at some of the other programs in <tt>user/</tt>
-    (e.g., <tt>user/echo.c</tt>, <tt>user/grep.c</tt>,
-    and <tt>user/rm.c</tt>)
-    to see
-    how you can obtain the command-line arguments passed to a program.
-    <li>If the user
-    forgets to pass an argument, sleep should print an error message.
-    <li>The command-line argument is passed as a string; you can convert it to an
-      integer using <tt>atoi</tt> (see user/ulib.c).
-    <li>Use the system call <tt>sleep</tt>.
-    <li>See <tt>kernel/sysproc.c</tt> for
-    the xv6 kernel code that implements the <tt>sleep</tt> system
-    call (look for <tt>sys_sleep</tt>), <tt>user/user.h</tt>
-    for the C definition of <tt>sleep</tt> callable from a
-    user program, and <tt>user/usys.S</tt> for the assembler
-    code that jumps from user code into the kernel for <tt>sleep</tt>.
-    <li>Make sure <tt>main</tt> calls <tt>exit()</tt> in order to exit
-    your program.
-    <li>Add your <tt>sleep</tt> program to <tt>UPROGS</tt> in Makefile; once you've
-    done that, <tt>make qemu</tt> will compile your program and you'll
-    be able to run it from the xv6 shell.
-  </ul>
+Some hints:
 
+- Before you start coding, read Chapter 1 of the [xv6 book](https://pdos.csail.mit.edu/6.S081/2021/xv6/book-riscv-rev2.pdf).
+- Look at some of the other programs in `user/` (e.g., `user/echo.c`, `user/grep.c`, and `user/rm.c`) to see how you can obtain the command-line arguments passed to a program.
+- If the user forgets to pass an argument, sleep should print an error message.
+- The command-line argument is passed as a string; you can convert it to an integer using `atoi` (see user/ulib.c).
+- Use the system call `sleep`.
+- See `kernel/sysproc.c` for the xv6 kernel code that implements the `sleep` system call (look for `sys_sleep`), `user/user.h` for the C definition of `sleep` callable from a user program, and `user/usys.S` for the assembler code that jumps from user code into the kernel for `sleep`.
+- Make sure `main` calls `exit()` in order to exit your program.
+- Add your `sleep` program to `UPROGS` in Makefile; once you've done that, `make qemu` will compile your program and you'll be able to run it from the xv6 shell.
+- Look at Kernighan and Ritchie's book *The C programming language (second edition)* (K&R) to learn about C.
 
+Run the program from the xv6 shell:
 
-  <p>Run the program from the xv6 shell:
-    <pre>
-      $ <kbd>make qemu</kbd>
-      ...
-      init: starting sh
-      $ <kbd>sleep 10</kbd>
-      (nothing happens for a little while)
-      $
-    </pre>
-  <p>Your solution is correct if your program pauses when
-  run as shown above.
-  Run <kbd>make grade</kbd> to see if you indeed pass the
-    sleep tests.
+```shell
+$ make qemu
+...
+init: starting sh
+$ sleep 10
+(nothing happens for a little while)
+$
+```
 
- <p>Note that <kbd>make grade</kbd> runs all tests, including the ones for the assignments
- below. If you want to run the grade tests for one assignment, type:
-   <pre>
-     $ <kbd>./grade-lab-util sleep</kbd>
-   </pre>
-   This will run the grade tests that match "sleep".  Or, you can type:
-   <pre>
-     $ <kbd>make GRADEFLAGS=sleep grade</kbd>
-   </pre>
-   which does the same.
+Your solution is correct if your program pauses when run as shown above. Run make grade to see if you indeed pass the sleep tests.
 
+Note that make grade runs all tests, including the ones for the assignments below. If you want to run the grade tests for one assignment, type:
+
+```shell
+$ ./grade-lab-util sleep
+```
+
+This will run the grade tests that match "sleep". Or, you can type:
+
+```shell
+$ make GRADEFLAGS=sleep grade
+```
+
+which does the same.
 
 ## 思路
 

@@ -1,50 +1,32 @@
 # Lab: Xv6 and Unix utilities
 
-## pingpong
+## pingpong ([easy](https://pdos.csail.mit.edu/6.S081/2021/labs/guidance.html))
 
-<div class="required">
-<p> Write a program that uses UNIX system calls to ''ping-pong'' a
-  byte between two processes over a pair of pipes, one for each
-  direction.
-  The parent should send a byte to the child;
-  the child should print "&lt;pid&gt;: received ping",
-  where &lt;pid&gt; is its process ID,
-  write the byte on the pipe to the parent,
-  and exit;
-  the parent should read the byte from the child,
-  print "&lt;pid&gt;: received pong",
-  and exit.
-  Your
-  solution should be in the file <tt>user/pingpong.c</tt>.
-</div>
+Write a program that uses UNIX system calls to ''ping-pong'' a byte between two processes over a pair of pipes, one for each direction. The parent should send a byte to the child; the child should print "<pid>: received ping", where <pid> is its process ID, write the byte on the pipe to the parent, and exit; the parent should read the byte from the child, print "<pid>: received pong", and exit. Your solution should be in the file `user/pingpong.c`.
 
-<p>Some hints:
-  <ul>
-    <li>Use <tt>pipe</tt> to create a pipe.
-    <li>Use <tt>fork</tt> to create a child.
-    <li>Use <tt>read</tt> to read from the pipe, and <tt>write</tt> to write to the pipe.
-    <li>Use <tt>getpid</tt> to find the process ID of the calling process.
-    <li>Add the program to <tt>UPROGS</tt> in Makefile.
-    <li>User programs on xv6 have a limited set of library
-    functions available to them. You can see the list in
-    <tt>user/user.h</tt>; the source (other than for system calls)
-    is in <tt>user/ulib.c</tt>, <tt>user/printf.c</tt>,
-    and <tt>user/umalloc.c</tt>.
-  </ul>
-  <p>Run the program from the xv6 shell and it should produce the
-  following output:
-  <pre>
-    $ <kbd>make qemu</kbd>
+Some hints:
+
+- Use `pipe` to create a pipe.
+- Use `fork` to create a child.
+- Use `read` to read from the pipe, and `write` to write to the pipe.
+- Use `getpid` to find the process ID of the calling process.
+- Add the program to `UPROGS` in Makefile.
+- User programs on xv6 have a limited set of library functions available to them. You can see the list in `user/user.h`; the source (other than for system calls) is in `user/ulib.c`, `user/printf.c`, and `user/umalloc.c`.
+
+Run the program from the xv6 shell and it should produce the following output:
+
+```
+    $ make qemu
     ...
     init: starting sh
-    $ <kbd>pingpong</kbd>
+    $ pingpong
     4: received ping
     3: received pong
     $
-  </pre>
-    <p>Your solution is correct if your program exchanges a byte
-    between two processes and produces output as shown above.
+  
+```
 
+Your solution is correct if your program exchanges a byte between two processes and produces output as shown above.
 
 
 ## 需求
