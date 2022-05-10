@@ -13,5 +13,5 @@
 
 
 [GitHub](https://github.com/PokIsemaine/ohmyfish/tree/master)
-[Get Started](#📒内容)
+[Get Started](README.md)
 
