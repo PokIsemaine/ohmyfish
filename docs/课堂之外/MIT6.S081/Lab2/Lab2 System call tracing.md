@@ -5,7 +5,7 @@ In this assignment you will add a system call tracing feature that may help you 
 
 We provide a `trace` user-level program that runs another program with tracing enabled (see `user/trace.c`). When you're done, you should see output like this:
 
-```
+```shell
 $ trace 32 grep hello README
 3: syscall read -> 1023
 3: syscall read -> 966

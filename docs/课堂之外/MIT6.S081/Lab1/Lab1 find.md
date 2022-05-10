@@ -1,10 +1,9 @@
-
-
 # Lab: Xv6 and Unix utilities
 
 ## find ([moderate](https://pdos.csail.mit.edu/6.S081/2021/labs/guidance.html))
 
-Write a simple version of the UNIX find program: find all the files in a directory tree with a specific name. Your solution should be in the file `user/find.c`.
+Write a simple version of the UNIX find program: find all the 
+files in a directory tree with a specific name. Your solution should be in the file `user/find.c`.
 
 Some hints:
 
@@ -18,7 +17,7 @@ Some hints:
 
 Your solution is correct if produces the following output (when the file system contains the files `b` and `a/b`):
 
-```
+```shell
     $ make qemu
     ...
     init: starting sh
