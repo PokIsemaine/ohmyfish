@@ -1,10 +1,10 @@
-# Lab4 trap
+# Lab4 traps
 
 ## Backtrace ([moderate](https://pdos.csail.mit.edu/6.S081/2021/labs/guidance.html))
 
 For debugging it is often useful to have a `backtrace`: a list of the function calls on the stack above the point at which the error occurred.
 
-Implement a `backtrace()` function in `kernel/printf.c`. Insert a call to this function in `sys_sleep`, and then run bttest, which calls `sys_sleep`. Your output should be as follows:
+Implement a `backtrace()` function in `kernel/printf.c`. Insert a call to this function in `sys_sleep`, and then run `bttest`, which calls `sys_sleep`. Your output should be as follows:
 
 ```shell
 backtrace:
@@ -62,4 +62,146 @@ Once your `backtrace` is working, call it from `panic` in `kernel/printf.c` so t
 
 
 ## 过程
+
+实现一个 `backtrace()`，展现错误发生时的函数调用栈
+
+`bttest`->`sleep`->`backtrace`
+
+
+
+### step1：声明原型
+
+在`kernel/def.h`中声明`backtrace()` 原型
+
+```c
+void backtrace();
+```
+
+
+
+### step2：读取 frame pointer
+
+The `GCC` compiler stores the frame pointer of the currently executing function in the register`s0`. Add the following function to`kernel/riscv.h`:
+
+`GCC` 编译器在`s0`寄存器中存储了当前运行的函数的`frame pointer`，将下面的函数添加到`kernel/riscv.h`中
+
+```c
+//使用内联汇编读取 s0寄存器，即当前调用函数的 frame pointer
+static inline uint64
+r_fp()
+{
+  uint64 x;
+  asm volatile("mv %0, s0" : "=r" (x) );
+  return x;
+}
+```
+
+
+
+### step3：了解 stack frame
+
+![image-20220515094814647](https://s2.loli.net/2022/05/15/4xaYqusUhlmztEj.png)
+
+
+
+* 返回地址` Return Address` ： 位于距堆栈帧的帧指针固定偏移（-8）的位置
+* 已保存的帧指针` Prev. Frame(fp)`：位于距帧指针固定偏移（-16）的位置。
+
+
+
+### step4：栈的页
+
+`Xv6`给每个内核里的页对齐`PAGE-aligned`位置给每个栈分配了一个页。你可以通过使用 `PGROUNDUP(fp)`和`PGROUNDDOWN(fp)`来计算这个页的顶部地址和底部地址
+
+参阅`kernel / riscv.h`,这些数字有助于回溯以终止其循环。
+
+```c
+#define PGSIZE 4096 // bytes per page
+#define PGSHIFT 12  // bits of offset within a page
+
+#define PGROUNDUP(sz)  (((sz)+PGSIZE-1) & ~(PGSIZE-1))
+#define PGROUNDDOWN(a) (((a)) & ~(PGSIZE-1))
+```
+
+
+
+### step5：添加加 backtrace
+
+在`kernel/printf.c`的`panic`中添加`backtrace`调用，这样就能在 panic 的时候调用 `backtrace`
+
+```c
+void
+panic(char *s)
+{
+  pr.locking = 0;
+  printf("panic: ");
+  printf(s);
+  printf("\n");
+  backtrace();
+  panicked = 1; // freeze uart output from other CPUs
+  for(;;)
+    ;
+}
+```
+
+根据题目要求还要在`sys_sleep`中添加 `backtrace()`
+
+```c
+uint64
+sys_sleep(void)
+{
+  int n;
+  uint ticks0;
+
+  backtrace();
+
+  if(argint(0, &n) < 0)
+    return -1;
+  acquire(&tickslock);
+  ticks0 = ticks;
+  while(ticks - ticks0 < n){
+    if(myproc()->killed){
+      release(&tickslock);
+      return -1;
+    }
+    sleep(&ticks, &tickslock);
+  }
+  release(&tickslock);
+  return 0;
+}
+
+```
+
+
+
+### step6：实现 backtrace
+
+首先通过`PGROUNDUP`和`PGROUNDDOWN`获取页的顶部地址和底部地址
+
+```c
+uint64 fp = r_fp();
+uint64 high = PGROUNDUP(fp);
+uint64 low = PGROUNDDOWN(fp);
+```
+
+在调用的时候，栈是从高地址向低地址增长的
+
+`fp-8`可以得到当前调用函数的返回地址
+
+`fp-16`可以得到调用这个函数的函数的`fp`，也就是`To Prev.Frame`，这个会指向高地址处的前一个`stack frame`
+
+如果`fp >= high`那就说明已经到头了
+
+```c
+void backtrace()
+{
+	uint64 fp = r_fp();
+	uint64 high = PGROUNDUP(fp);
+	uint64 low = PGROUNDDOWN(fp);
+	while(fp >= low && fp < high) {
+		printf("%p\n",*((uint64*)(fp - 8)));
+		fp = *((uint64*)(fp - 16));
+	}
+}
+```
 

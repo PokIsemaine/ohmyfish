@@ -1,4 +1,4 @@
-# Lab4 trap
+# Lab4 traps
 
 ## RISC-V assembly ([easy](https://pdos.csail.mit.edu/6.S081/2021/labs/guidance.html))
 
