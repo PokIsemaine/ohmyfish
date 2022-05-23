@@ -34,9 +34,11 @@
 
 ## 用例图
 
-![用例图](https://s2.loli.net/2022/05/22/hmysIGzdDTfOjxV.png)
+![用例图](https://s2.loli.net/2022/05/23/PO8zfMwRKuk3W7l.png)
 
-
+* 注意有没有肩头
+* 注意是否虚线
+* 注意箭头方向
 
 ## 活动图
 
