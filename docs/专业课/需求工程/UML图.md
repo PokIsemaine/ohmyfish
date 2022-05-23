@@ -40,6 +40,10 @@
 * 注意是否虚线
 * 注意箭头方向
 
+![用例建模](https://s2.loli.net/2022/05/23/Gbu6vFSdTpBcKEa.png)
+
+
+
 ## 活动图
 
 ![活动图](https://s2.loli.net/2022/05/22/JhaiWsd5F76eukt.png)
