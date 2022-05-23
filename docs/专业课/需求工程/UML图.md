@@ -78,7 +78,7 @@
 
 ### 类之间的关系
 
-![类关系](https://s2.loli.net/2022/05/22/CWVN6zF47bh8kXt.png)
+![类关系](https://s2.loli.net/2022/05/23/xZC7nPDAUioa2bd.png)
 
 
 
