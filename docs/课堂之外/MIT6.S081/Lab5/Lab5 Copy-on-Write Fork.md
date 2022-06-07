@@ -62,3 +62,375 @@ Some hints:
 - `usertests` explores scenarios that `cowtest` does not test, so don't forget to check that all tests pass for both.
 - Some helpful macros and definitions for page table flags are at the end of `kernel/riscv.h`.
 - If a COW page fault occurs and there's no free memory, the process should be killed.
+
+
+
+
+
+## 过程
+
+实现写时复制的`fork()`：推迟为子进程分配和复制物理内存页面，直到实际需要副本
+
+`COW fork()` 只为子级创建一个页表，用户内存的 `PTE` 指向父级的物理页面。`COW fork()` 将 `parent` 和 `child` 中的所有用户 `PTE` 标记为不可写。当任一进程尝试写入这些 `COW` 页之一时，CPU 将强制发生页错误。内核页面错误处理程序检测到这种情况，为出错进程分配物理内存页面，将原始页面复制到新页面中，并修改出错进程中的相关 `PTE` 以引用新页面，这次使用`PTE` 标记为可写。当页面错误处理程序返回时，用户进程将能够写入它的页面副本。
+
+`COW fork()` 使实现用户内存的物理页面的释放变得有点棘手。一个给定的物理页可以被多个进程的页表引用，并且只有在最后一个引用消失时才应该被释放。
+
+
+
+### 测试文件
+
+`cowtest`以及`usertests`，下面展示`cowtest`
+
+```c
+//
+// tests for copy-on-write fork() assignment.
+//
+
+#include "kernel/types.h"
+#include "kernel/memlayout.h"
+#include "user/user.h"
+
+// allocate more than half of physical memory,
+// then fork. this will fail in the default
+// kernel, which does not support copy-on-write.
+void
+simpletest()
+{
+  uint64 phys_size = PHYSTOP - KERNBASE;
+  int sz = (phys_size / 3) * 2;
+
+  printf("simple: ");
+  
+  char *p = sbrk(sz);
+  if(p == (char*)0xffffffffffffffffL){
+    printf("sbrk(%d) failed\n", sz);
+    exit(-1);
+  }
+
+  for(char *q = p; q < p + sz; q += 4096){
+    *(int*)q = getpid();
+  }
+
+  int pid = fork();
+  if(pid < 0){
+    printf("fork() failed\n");
+    exit(-1);
+  }
+
+  if(pid == 0)
+    exit(0);
+
+  wait(0);
+
+  if(sbrk(-sz) == (char*)0xffffffffffffffffL){
+    printf("sbrk(-%d) failed\n", sz);
+    exit(-1);
+  }
+
+  printf("ok\n");
+}
+
+// three processes all write COW memory.
+// this causes more than half of physical memory
+// to be allocated, so it also checks whether
+// copied pages are freed.
+void
+threetest()
+{
+  uint64 phys_size = PHYSTOP - KERNBASE;
+  int sz = phys_size / 4;
+  int pid1, pid2;
+
+  printf("three: ");
+  
+  char *p = sbrk(sz);
+  if(p == (char*)0xffffffffffffffffL){
+    printf("sbrk(%d) failed\n", sz);
+    exit(-1);
+  }
+
+  pid1 = fork();
+  if(pid1 < 0){
+    printf("fork failed\n");
+    exit(-1);
+  }
+  if(pid1 == 0){
+    pid2 = fork();
+    if(pid2 < 0){
+      printf("fork failed");
+      exit(-1);
+    }
+    if(pid2 == 0){
+      for(char *q = p; q < p + (sz/5)*4; q += 4096){
+        *(int*)q = getpid();
+      }
+      for(char *q = p; q < p + (sz/5)*4; q += 4096){
+        if(*(int*)q != getpid()){
+          printf("wrong content\n");
+          exit(-1);
+        }
+      }
+      exit(-1);
+    }
+    for(char *q = p; q < p + (sz/2); q += 4096){
+      *(int*)q = 9999;
+    }
+    exit(0);
+  }
+
+  for(char *q = p; q < p + sz; q += 4096){
+    *(int*)q = getpid();
+  }
+
+  wait(0);
+
+  sleep(1);
+
+  for(char *q = p; q < p + sz; q += 4096){
+    if(*(int*)q != getpid()){
+      printf("wrong content\n");
+      exit(-1);
+    }
+  }
+
+  if(sbrk(-sz) == (char*)0xffffffffffffffffL){
+    printf("sbrk(-%d) failed\n", sz);
+    exit(-1);
+  }
+
+  printf("ok\n");
+}
+
+char junk1[4096];
+int fds[2];
+char junk2[4096];
+char buf[4096];
+char junk3[4096];
+
+// test whether copyout() simulates COW faults.
+void
+filetest()
+{
+  printf("file: ");
+  
+  buf[0] = 99;
+
+  for(int i = 0; i < 4; i++){
+    if(pipe(fds) != 0){
+      printf("pipe() failed\n");
+      exit(-1);
+    }
+    int pid = fork();
+    if(pid < 0){
+      printf("fork failed\n");
+      exit(-1);
+    }
+    if(pid == 0){
+      sleep(1);
+      if(read(fds[0], buf, sizeof(i)) != sizeof(i)){
+        printf("error: read failed\n");
+        exit(1);
+      }
+      sleep(1);
+      int j = *(int*)buf;
+      if(j != i){
+        printf("error: read the wrong value\n");
+        exit(1);
+      }
+      exit(0);
+    }
+    if(write(fds[1], &i, sizeof(i)) != sizeof(i)){
+      printf("error: write failed\n");
+      exit(-1);
+    }
+  }
+
+  int xstatus = 0;
+  for(int i = 0; i < 4; i++) {
+    wait(&xstatus);
+    if(xstatus != 0) {
+      exit(1);
+    }
+  }
+
+  if(buf[0] != 99){
+    printf("error: child overwrote parent\n");
+    exit(1);
+  }
+
+  printf("ok\n");
+}
+
+int
+main(int argc, char *argv[])
+{
+  simpletest();
+
+  // check that the first simpletest() freed the physical memory.
+  simpletest();
+
+  threetest();
+  threetest();
+  threetest();
+
+  filetest();
+
+  printf("ALL COW TESTS PASSED\n");
+
+  exit(0);
+}
+
+```
+
+`simpletest`：分配超过一半大小的物理内存，然后 `fork`。如果没有`COW`就会失败
+
+`threetest`：三个进程都写 `COW memory`，这会造成超过一半的物理内存被分配，所以会检查是否有拷贝页面被释放
+
+`filetest`：测试 `copyout()` 是否模拟 COW 故障。
+
+### step1 查看现在的 fork
+
+`proc.c/fork`
+
+```c
+// Create a new process, copying the parent.
+// Sets up child kernel stack to return as if from fork() system call.
+int
+fork(void)
+{
+  int i, pid;
+  struct proc *np;
+  struct proc *p = myproc();
+
+  // Allocate process.
+  if((np = allocproc()) == 0){
+    return -1;
+  }
+
+  // Copy user memory from parent to child.    <----------------Here
+  if(uvmcopy(p->pagetable, np->pagetable, p->sz) < 0){
+    freeproc(np);
+    release(&np->lock);
+    return -1;
+  }
+  np->sz = p->sz;
+
+  // copy saved user registers.
+  *(np->trapframe) = *(p->trapframe);
+
+  // Cause fork to return 0 in the child.
+  np->trapframe->a0 = 0;
+
+  // increment reference counts on open file descriptors.
+  for(i = 0; i < NOFILE; i++)
+    if(p->ofile[i])
+      np->ofile[i] = filedup(p->ofile[i]);
+  np->cwd = idup(p->cwd);
+
+  safestrcpy(np->name, p->name, sizeof(p->name));
+
+  pid = np->pid;
+
+  release(&np->lock);
+
+  acquire(&wait_lock);
+  np->parent = p;
+  release(&wait_lock);
+
+  acquire(&np->lock);
+  np->state = RUNNABLE;
+  release(&np->lock);
+
+  return pid;
+}
+```
+
+
+
+### step2 修改uvmcopy
+
+修改 `uvmcopy()` 以将父级的物理页面映射到子级，而不是分配新页面。在子级和父级的 `PTE` 中清除`PTE_W`。
+
+原来的`uvmcopy()`
+
+```c
+// Given a parent process's page table, copy
+// its memory into a child's page table.
+// Copies both the page table and the
+// physical memory.
+// returns 0 on success, -1 on failure.
+// frees any allocated pages on failure.
+int
+uvmcopy(pagetable_t old, pagetable_t new, uint64 sz)
+{
+  pte_t *pte;
+  uint64 pa, i;
+  uint flags;
+  char *mem;
+
+  for(i = 0; i < sz; i += PGSIZE){
+    if((pte = walk(old, i, 0)) == 0)	//找到 parent 进程的第 i 个页表项的地址
+      panic("uvmcopy: pte should exist");
+    if((*pte & PTE_V) == 0)				// 检查找到的页表项是否有效
+      panic("uvmcopy: page not present");
+    pa = PTE2PA(*pte);					// 得到页表项的物理地址
+    flags = PTE_FLAGS(*pte);			// 得到页表项的 FLAGS
+    if((mem = kalloc()) == 0)			// 使用 kalloc() 分配一个物理页
+      goto err;
+    memmove(mem, (char*)pa, PGSIZE);	// 从 parent 进程的页表项的物理地址拷贝到新分配的 mem
+ //child pagetable 虚拟地址 i 映射到物理页 mem
+    if(mappages(new, i, PGSIZE, (uint64)mem, flags) != 0){	
+      kfree(mem);
+      goto err;
+    }
+  }
+  return 0;
+
+ err:
+  uvmunmap(new, 0, i / PGSIZE, 1);
+  return -1;
+}
+```
+
+
+
+不分配新页面，清除`PTE_W`
+
+```c
+int
+uvmcopy(pagetable_t old, pagetable_t new, uint64 sz)
+{
+  pte_t *pte;
+  uint64 pa, i;
+  uint flags;
+  char *mem;
+
+  for(i = 0; i < sz; i += PGSIZE){
+    if((pte = walk(old, i, 0)) == 0)
+      panic("uvmcopy: pte should exist");
+    if((*pte & PTE_V) == 0)
+      panic("uvmcopy: page not present");
+    pa = PTE2PA(*pte);
+    flags = PTE_FLAGS(*pte);
+	flags &= ~PTE_W;
+    // if((mem = kalloc()) == 0)
+    //   goto err;
+    // memmove(mem, (char*)pa, PGSIZE);
+    if(mappages(new, i, PGSIZE, (uint64)pa, flags) != 0){
+    //   kfree(mem);
+      goto err;
+    }
+  }
+  return 0;
+
+ err:
+  uvmunmap(new, 0, i / PGSIZE, 1);
+  return -1;
+}
+```
+
+
+
+### step3 修改 usertrap
+
+修改` usertrap() `以识别页面错误。当 `COW` 页面发生缺页时，使用` kalloc()` 分配新页面，将旧页面复制到新页面，并将新页面安装到 `PTE` 中并设置`PTE_W` 。

@@ -212,9 +212,9 @@ typedef uint64 *pagetable_t; // 512 PTEs
 
 The central functions are walk , which **installs PTEs for new mappings**
 
-1.  finds the PTE for a virtual address
+1.  finds the PTE for a virtual address 
 
-2. mappages
+2. mappages 
 
 ​	
 
@@ -252,7 +252,7 @@ walk(pagetable_t pagetable, uint64 va, int alloc)
 }
 ```
 
-
+![image-20220421092624549](https://s2.loli.net/2022/04/21/7dnv2DcquxN8RHj.png)
 
 **The hardware does the level 3 page table lookup, so why do we have a walk function in XV6 that does the same job?**
 
@@ -301,6 +301,39 @@ First of all, the walk function in XV6 sets the initial page table, it needs to 
 | `uint64 walkaddr(pagetable_t pagetable, uint64 va);`         | Look up a virtual address, return the physical address, or 0 if not mapped. Can only be used to look up user pages. |
 | `int mappages(pagetable_t pagetable, uint64 va, uint64 size, uint64 pa, int perm);` | Create PTEs for virtual addresses starting at va that refer to physical addresses starting at pa. va and size might not be page-aligned. Returns 0 on success, -1 if walk() couldn't allocate a needed page-table page. |
 | `void freewalk(pagetable_t pagetable);`                      | Recursively free page-table pages. All leaf mappings must already have been removed. |
+
+
+
+```c
+int
+mappages(pagetable_t pagetable, uint64 va, uint64 size, uint64 pa, int perm)
+{
+  uint64 a, last;
+  pte_t *pte;
+
+  if(size == 0)
+    panic("mappages: size");
+  
+  a = PGROUNDDOWN(va);
+  last = PGROUNDDOWN(va + size - 1);
+  for(;;){
+    if((pte = walk(pagetable, a, 1)) == 0)
+      return -1;
+    if(*pte & PTE_V)			//检查有没有重复映射
+      panic("mappages: remap");
+    *pte = PA2PTE(pa) | perm | PTE_V;
+    if(a == last)
+      break;
+    a += PGSIZE;
+    pa += PGSIZE;
+  }
+  return 0;
+}
+```
+
+
+
+
 
 
 
@@ -641,6 +674,8 @@ how to create an address place
 
 
 
+//TODO：更新成 PAD 图
+
 ![image-20220421160132180](https://s2.loli.net/2022/04/21/dbr1WGjtyOnKZ4J.png)
 
 ## 3.4 Physical memory allocation
@@ -777,6 +812,10 @@ kfree(void *pa)
 ## 3.6 Process address space
 
 ![image-20220421165446640](https://s2.loli.net/2022/04/21/mNkJzDSdC19bEG5.png)
+
+When a process asks `xv6` for more user memory, `xv6` first uses `kalloc` to allocate physical pages. It then adds `PTEs` to the process’s page table that point to the new physical pages.`Xv6` sets the `PTE_W`, `PTE_X`, `PTE_R`, `PTE_U`, and `PTE_V` flags in these `PTEs`. Most processes do not use the entire user address space; `xv6` leaves `PTE_V` clear in unused `PTEs`.
+
+
 
 Each process has a separate page table, and when xv6 switches between processes, it also changes page tables
 
