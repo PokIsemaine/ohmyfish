@@ -1,5 +1,7 @@
 # Chapter4 Traps and system calls
 
+可以参考：https://mit-public-courses-cn-translatio.gitbook.io/mit6-s081/lec06-isolation-and-system-call-entry-exit-robert
+
 ## traps
 
 * system call
@@ -644,7 +646,7 @@ devintr()
 
 
 
-## Page-fault exceptions
+## Page-fault exceptions(important -> Lab5 COW)
 
 Xv6’s response to exceptions is quite boring: 
 

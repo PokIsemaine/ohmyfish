@@ -434,3 +434,175 @@ uvmcopy(pagetable_t old, pagetable_t new, uint64 sz)
 ### step3 修改 usertrap
 
 修改` usertrap() `以识别页面错误。当 `COW` 页面发生缺页时，使用` kalloc()` 分配新页面，将旧页面复制到新页面，并将新页面安装到 `PTE` 中并设置`PTE_W` 。
+
+
+
+usertrap某种程度上存储并恢复硬件状态，但是它也需要**检查触发trap的原因，以确定相应的处理方式**
+
+
+
+```c
+//
+// handle an interrupt, exception, or system call from user space.
+// called from trampoline.S
+//
+void
+usertrap(void)
+{
+  int which_dev = 0;
+
+  if((r_sstatus() & SSTATUS_SPP) != 0)
+    panic("usertrap: not from user mode");
+
+  // send interrupts and exceptions to kerneltrap(),
+  // since we're now in the kernel.
+  w_stvec((uint64)kernelvec);
+
+  struct proc *p = myproc();
+  
+  // save user program counter.
+  p->trapframe->epc = r_sepc();
+  
+  // 这里开始根据 trap 原因进行不同的处理 <---------------------------------- HERE
+  if(r_scause() == 8){
+    // system call
+
+    if(p->killed)
+      exit(-1);
+
+    // sepc points to the ecall instruction,
+    // but we want to return to the next instruction.
+    p->trapframe->epc += 4;
+
+    // an interrupt will change sstatus &c registers,
+    // so don't enable until done with those registers.
+    intr_on();
+
+    syscall();
+  } else if((which_dev = devintr()) != 0){
+    // ok
+  } else {
+    printf("usertrap(): unexpected scause %p pid=%d\n", r_scause(), p->pid);
+    printf("            sepc=%p stval=%p\n", r_sepc(), r_stval());
+    p->killed = 1;
+  }
+
+  if(p->killed)
+    exit(-1);
+
+  // give up the CPU if this is a timer interrupt.
+  if(which_dev == 2)
+    yield();
+
+  usertrapret();
+}
+
+```
+
+
+
+我们增加一个判断分支来处理页错误，那么如何判断呢？回顾一下 xv6 Chapter4 做的笔记
+
+The CPU raises a **page-fault exception** when a virtual address is used that has no mapping in the page table, or has a mapping whose PTE_V flag is clear, or a mapping whose permission bits (PTE_R, PTE_W, PTE_X, PTE_U) forbid the operation being attempted. 
+
+RISC-V distinguishes three kinds of page fault: 
+
+* **load page faults** (when a load instruction cannot translate its virtual address)
+* **store page faults** (when a store instruction cannot translate its virtual address)
+* **instruction page faults** (when the address in the program counter doesn’t translate). 
+
+The `scause` register indicates the type of the page fault and the `stval` register contains the address that couldn’t be translated.
+
+
+
+再观察其他分支的条件语句发现可以通过`r_scause`指令来读取寄存器`scaose`，这个寄存器保留了 `trap`的原因，通过查询参考资料 riscv-privileged 手册 4.1.8 的表格，我们得到表示页错误的异常代码为 13 和 15
+
+![image-20220607193436469](https://s2.loli.net/2022/06/07/kUecjrv23iqATlR.png)
+
+
+
+```c
+else if(r_scause() == 0xd r_scause() == 0xf) {
+	//处理缺页错误
+}
+```
+
+接下来我们来处理页错误：应当分配页进行重新映射，并添加写标志位
+
+既然要重新分配页那就要知道哪里的页出问题了，并且由于我们使用`kalloc()`来分配，更加确切地说，我们需要出现问题的物理地址。
+
+寻找一条路径来获取出现问题的页的物理地址
+
+
+
+寄存器`stval`保存了发生页错误的虚拟地址
+
+```c
+uint64 err_vaddr = PGROUNDDOWN(r_stval());   					// 1.从 stval 寄存器获取发生页错误的虚拟地址
+
+uint64 err_paddr = walkaddr(p->pagetable, err_vaddr)			// 2.根据 VA 获取 物理地址 PA
+```
+
+
+
+
+
+
+
+```c
+else if(r_scause() == 0xf){
+    uint64 err_vaddr = PGROUNDDOWN(r_stval());   		 	// 1.从 stval 寄存器获取发生页错误的虚拟地址
+
+    pte_t* err_pte = translate(p->pagetable, err_vaddr);	// 2.根据虚拟地址获取 PTE
+
+    uint64 err_paddr = PTE2PA((uint64)*err_pte);			// 3.根据 PTE 获取 物理地址 PA
+}
+```
+
+
+
+对于每个 PTE，有一种方法来记录它是否是 COW 映射可能很有用。为此，您可以使用 RISC-V PTE 中的 RSW（为软件保留）位
+
+在`risc-v.h`中添加`#define PTE_COW (1L << 8)`
+
+![image-20220421094855374](https://s2.loli.net/2022/04/21/D7LBt8XAW3J9rdZ.png)
+
+
+
+```c
+else if(r_scause() == 0xf){
+    // 发生页错误，此时应当分配页进行重新映射，并添加写标志位
+    // 获取发生页错误的虚拟地址
+    uint64 err_vaddr = PGROUNDDOWN(r_stval());
+    // 对子进程/父进程进行重新映射, 并添加写标志位
+    // 获取出现页错误的物理地址
+    pte_t* err_pte = translate(p->pagetable, err_vaddr);
+    if(*err_pte & PTE_COW) {
+      // 如果此时带有 COW 标志位的话
+      uint64 err_paddr = PTE2PA((uint64)*err_pte);
+      if(err_paddr == 0){
+        printf("[Kernel] usertrap: err_vaddr: %p\n", err_vaddr);
+        panic("[Kernel] usertrap: fail to walk");
+      }
+      // 分配一块新的物理页，并将数据拷贝到新分配中的页中
+      char* page = kalloc();
+      if(page == 0){
+        printf("[Kernel] usertrap: Fail to allocate physical page.\n");
+        p->killed = 1;
+      }else{
+        // 当拿到发生页错误所在的物理地址时需要进行重新映射
+        // 此时需要加上写标志位并擦除 COW 标志位
+        uint64 flags = (PTE_FLAGS((uint64)(*err_pte)) | PTE_W) & (~PTE_COW);
+        // 将原来的数据拷贝到新分配的页中
+        memmove((char*)page, (char*)err_paddr, PGSIZE);
+        // 对发生错误的虚拟地址重新进行映射
+        uvmunmap(p->pagetable, err_vaddr, PGSIZE, 1);
+        *err_pte = PA2PTE((uint64)page) | flags;
+      }
+    } else {
+    printf("usertrap(): unexpected scause %p pid=%d\n", r_scause(), p->pid);
+    printf("            sepc=%p stval=%p\n", r_sepc(), r_stval());
+    p->killed = 1;
+  }
+```
+
