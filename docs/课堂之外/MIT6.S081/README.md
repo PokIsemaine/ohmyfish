@@ -22,7 +22,7 @@
 
 [pingpong](/课堂之外/MIT6.S081/Lab1/Lab1%20pingpong.md)：利用 pipe 和 fork 实现进程通信
 
-[primes](/课堂之外/MIT6.S081/Lab1/Lab1%20primes.md)：利用管道实现并发素食筛
+[primes](/课堂之外/MIT6.S081/Lab1/Lab1%20primes.md)：利用管道实现并发素数筛
 
 [find](/课堂之外/MIT6.S081/Lab1/Lab1%20find.md)：实现简易版的 find
 
@@ -56,9 +56,15 @@
 
 ### Lab traps: Traps
 
-[RISC-V assembly](/课堂之外/MIT6.S081/Lab4/Lab4%20RISC-V%20assembly.md)：了解 RISC-V hui bian
+[RISC-V assembly](/课堂之外/MIT6.S081/Lab4/Lab4%20RISC-V%20assembly.md)：了解 RISC-V 汇编
 
 ---
+
+
+
+### Lab: Copy-on-Write Fork for xv6
+
+[Implement copy-on write]() 实现 Copy-on-Write Fork
 
 
 
