@@ -135,10 +135,22 @@
 
 ### 13.1.4 三/五法则
 
-* 有三个基本操作可以控制类的拷贝操作：拷贝构造函数、拷贝赋值运算符和析构函数，新标准还可以定义一个移动构造函数和一个移动赋值运算符。
-* `C++`不要求定义所有这些操作，但是这些操作通常应该被看作一个整体。通常只需要其中一个而不需要定义所有操作的情况很少见
-* **当我们决定一个类是否要定义他自己版本的拷贝控制成员时，一个基本原则就是确定这个类是否需要析构函数**，需要析构函数的类也需要拷贝和赋值操作
-* 需要拷贝操作的类也需要赋值操作，反之亦然
+https://zh.cppreference.com/w/cpp/language/rule_of_three
+
+**三之法则**
+
+* 如果某个类需要用户定义的[析构函数](https://zh.cppreference.com/w/cpp/language/destructor)、用户定义的[复制构造函数](https://zh.cppreference.com/w/cpp/language/copy_constructor)或用户定义的[复制赋值运算符](https://zh.cppreference.com/w/cpp/language/copy_assignment)，那么它几乎肯定需要全部三者。
+
+**五之法则**
+
+* 因为用户定义的析构函数、复制构造函数或复制赋值运算符的存在会阻止[移动构造函数](https://zh.cppreference.com/w/cpp/language/move_constructor)和[移动赋值运算符](https://zh.cppreference.com/w/cpp/language/move_assignment)的隐式定义，所以任何想要移动语义的类必须声明全部五个特殊成员函数
+* 与三之法则不同的是，不提供移动构造函数和移动赋值运算符通常不是错误，但会导致失去优化机会。
+* [C.21：如果有任何默认操作被定义或 =delete，那么应当对它们全部进行定义或 =delete](https://github.com/isocpp/CppCoreGuidelines/blob/master/CppCoreGuidelines.md#Rc-five)
+
+**零之法则**
+
+* 有自定义析构函数、复制/移动构造函数或复制/移动赋值运算符的类应该专门处理所有权（这遵循[单一责任原则](https://en.wikipedia.org/wiki/Single_responsibility_principle)）。其他类都不应该拥有自定义的析构函数、复制/移动构造函数或复制/移动赋值运算符[[1\]](https://zh.cppreference.com/w/cpp/language/rule_of_three#cite_note-1)
+* 这条法则也在 C++ 核心指南（C++ Core Guidelines）中出现—— [C.20：一旦可以避免定义默认操作就应当施行](https://github.com/isocpp/CppCoreGuidelines/blob/master/CppCoreGuidelines.md#Rc-zero)。
 
 ### 13.1.5 使用 =default
 
