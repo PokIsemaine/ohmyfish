@@ -1,16 +1,32 @@
 # MIT 6.s081
 
-## xv6 笔记
+## 参考资料
 
-[Chapter 1 Operating system interfaces](/课堂之外/MIT6.S081/xv6%20book/Chapter1.md)
+xv6 翻译（2020） http://xv6.dgs.zone/
 
-[Chapter 2 Operating system organization](/课堂之外/MIT6.S081/xv6%20book/Chapter2.md)
+mit6.s081 课程翻译（2020） https://mit-public-courses-cn-translatio.gitbook.io/mit6-s081/
 
-[Chapter 3 Page tables](/课堂之外/MIT6.S081/xv6%20book/Chapter3.md)
+官方给的参考资料（2021）：https://pdos.csail.mit.edu/6.S081/2021/reference.html
 
-[Chapter 4 Traps and system calls](/课堂之外/MIT6.S081/xv6%20book/Chapter4.md)
 
-------
+
+## 笔记
+
+> 2022/7/11 把原来的笔记删了重写了一边，因为原来基本是摘抄和翻译，最近感觉这样没意思，不过是用看起来很多的文字进行自我安慰罢了。
+>
+> 尝试采用问题驱动的模式来整理笔记
+
+
+
+* Introduction
+* OS organization and system calls
+* Page tables
+* GDB, calling conventions and stack frames RISC-V
+* Isolation & system call entry/exit
+* Page faults
+* Interrupts
+* Multiprocessors and locking
+* 
 
 
 
@@ -65,6 +81,8 @@
 ### Lab: Copy-on-Write Fork for xv6
 
 [Implement copy-on write]() 实现 Copy-on-Write Fork
+
+
 
 
 

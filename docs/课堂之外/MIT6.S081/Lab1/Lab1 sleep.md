@@ -97,7 +97,7 @@ xv6的`sleep`系统调用是如何实现的呢？（下面代码只筛选了`sle
 int sleep(int);
 ```
 
-2. 在`user/usys.pl`中添加入口`make qmue`后会生成`user/usys.S`
+2. 在`user/usys.pl`中添加入口`make qume`后会生成`user/usys.S`
 
 ```perl
 #!/usr/bin/perl -w
