@@ -228,6 +228,12 @@ Valgrind 的 Helgrind 也提供了数据争用的检测  https://valgrind.org/do
 
 
 
+brpc 中的 bvar 通过避免共享来优化计数器（可以聊聊）
+
+https://github.com/apache/incubator-brpc/blob/master/docs/cn/atomic_instructions.md#cacheline
+
+
+
 ### 问题 3 关于死锁
 
 一个死锁的最简单的场景就是：首先acquire一个锁，然后进入到critical section；在critical section中，再acquire同一个锁；第二个acquire必须要等到第一个acquire状态被release了才能继续执行，但是不继续执行的话又走不到第一个release，所以程序就一直卡在这了。这就是一个死锁。
