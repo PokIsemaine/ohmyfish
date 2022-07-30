@@ -310,7 +310,7 @@ syscall(void)
 
  When sys_exec returns, syscall records its return value in p->trapframe->a0. This will cause the original user-space call to exec() to return that value, since the C calling convention on RISC-V places return values in a0. System calls conventionally return negative numbers to indicate errors, and zero or positive numbers for success. If the system call number is invalid, syscall prints an error and returns −1
 
-![trapexec](https://s2.loli.net/2022/05/03/rpdNwvxy148lkUV.png)
+![syscall](https://s2.loli.net/2022/07/29/YZDfGF6oCwceNKQ.png)
 
 ## Code: System call arguments
 
