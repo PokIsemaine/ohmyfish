@@ -37,11 +37,11 @@ Singleton* Singleton::getInstance() {
 }
 ```
 
-上述代码并非线程安全，假设两个线程A、B
+上述代码并非线程安全，假设两个线程 A、B
 
-A先抢到时间片执行了`if (m_instance == nullptr)`，B又抢到了时间片。那么接下来有可能`A`、`B`两个线程都会执行`m_instance = new Singleton();`
+A 先抢到时间片执行了`if (m_instance == nullptr)`，B 又抢到了时间片。那么接下来有可能`A`、`B`两个线程都会执行`m_instance = new Singleton();`
 
-### 优化1：加锁实现线程安全
+### 优化 1：加锁实现线程安全
 
 ```cpp
 //线程安全版本，但锁的代价过高
@@ -62,7 +62,7 @@ Singleton* Singleton::getInstance() {
 
 
 
-## 优化2：双检查锁（不能用，出错概率很高）
+## 优化 2：双检查锁（不能用，出错概率很高）
 
 锁前检查，锁后不检查，会出问题
 
@@ -117,7 +117,7 @@ Singleton* Singleton::getInstance() {
 
 什么是内存读写`reorder`？
 
-我们通常会认为指令序列会按照我们想的方式实现，但是到了CPU的指令层次的时候，实际顺序有可能和我们想的不一样
+我们通常会认为指令序列会按照我们想的方式实现，但是到了 CPU 的指令层次的时候，实际顺序有可能和我们想的不一样
 
 并且要注意的是，线程正是在指令层次去争抢时间片的
 
@@ -147,7 +147,7 @@ Singleton* Singleton::getInstance() {
 
 解铃还需系铃人，编译器为了优化进行指令的`reorder`造成的锅，当然要让编译器来解决啦！
 
-### 优化3：volatile/atomic
+### 优化 3：volatile/atomic
 
 `volatile/atomic`阻止了编译器优化
 
@@ -184,6 +184,6 @@ Singleton* Singleton::getInstance() {
 
 ## 要点总结
 
-- Singleton模式中的实例构造器可以设置为protected以允许子类派生。
-- Singleton模式一般不要支持拷贝构造函数和Clone接口，因为这有可能导致多个对象实例，与Singleton模式的初中违背。
-- 如何实现多线程环境下安全的Singleton？注意对双检查锁的正确实现。
+- Singleton 模式中的实例构造器可以设置为 protected 以允许子类派生。
+- Singleton 模式一般不要支持拷贝构造函数和 Clone 接口，因为这有可能导致多个对象实例，与 Singleton 模式的初中违背。
+- 如何实现多线程环境下安全的 Singleton？注意对双检查锁的正确实现。

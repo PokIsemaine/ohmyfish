@@ -5,13 +5,14 @@
 * 理解松耦合**设计思想**
 * 掌握面向对象**设计原则**
 * 掌握**重构技法**改善设计
-* 掌握GOF核心**设计模式**
+* 掌握 GOF 核心**设计模式**
 
 ## 参考资料
 
-* GOF的《设计模式》
-* 李建忠的C++设计模式课程
+* GOF 的《设计模式》
+* 李建忠的 C++设计模式课程
 * [Cpp-Design-Patterns 代码仓库](https://github.com/liu-jianhao/Cpp-Design-Patterns)
+* [设计模式 强烈推荐看这个](https://refactoringguru.cn/design-patterns)
 
 ## 前言
 

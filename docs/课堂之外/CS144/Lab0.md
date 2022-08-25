@@ -6,4 +6,4 @@
 
 ![image-20220725223451050](https://s2.loli.net/2022/07/25/2CVDagr9oTu1EMm.png)
 
-用list 也可以
+用 list 也可以
