@@ -80,16 +80,46 @@ mit6.s081 课程翻译（2020） https://mit-public-courses-cn-translatio.gitboo
 
 ### Lab: Copy-on-Write Fork for xv6
 
-[Implement copy-on write]() 实现 Copy-on-Write Fork
 
+[Implement copy-on write](/课堂之外/MIT6.S081/Lab5/Lab5%20Copy-on-Write%20Fork.md)：实现 Copy-on-Write Fork
+
+---
+
+### Lab: Multithreading
+
+[Barrier](/课堂之外/MIT6.S081/Lab6/Lab6%20Barrier.md)：使用条件变量和锁实现 Barrier
+
+[Using threads](docs/课堂之外/MIT6.S081/Lab6/Lab6%20Using%20threads.md)：使用线程
+
+[Uthread: switching between threads](/课堂之外/MIT6.S081/Lab5/Lab5%20Copy-on-Write%20Fork.md)：实现用户态线程切换
+
+---
+
+### Lab: locks
+
+[Memory allocator](/课堂之外/MIT6.S081/Lab8/Lab8%20Memory%20allocator.md)：优化内存分配的锁竞争
+
+[Buffer cache](/课堂之外/MIT6.S081/Lab8/Lab8%20Buffer%20cache.md)：优化文件系统 Buffer Cache 层的锁竞争
+
+---
+
+### Lab: file system
+
+[Large files](/课堂之外/MIT6.S081/Lab9/Lab9%20Large%20files.md)：为文件系统增加二级连接块，扩展最大文件大小
+
+[Symbolic links](docs/课堂之外/MIT6.S081/Lab9/Lab9%20Symbolic%20links.md)：为文件系统实现软链接
+
+### Lab: mmap
+
+[mmap](/课堂之外/MIT6.S081/Lab10/mmap.md): 实现 mmap
 
 
 
 
 ## 杂项
 
-[RISC-V tutorial for MIT6.S081]()
+[RISC-V tutorial for MIT6.S081](/none)
 
-[GDB：状态机视角]()
+[GDB：状态机视角](/none)
 
-[Makefile]()
+[Makefile](/none)

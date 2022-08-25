@@ -20,7 +20,7 @@ Your task is to implement copy-on-write fork in the xv6 kernel. You are done if 
 
 To help you test your implementation, we've provided an xv6 program called cowtest (source in user/cowtest.c). cowtest runs various tests, but even the first will fail on unmodified xv6. Thus, initially, you will see:
 
-```
+```bash
 $ cowtest
 simple: fork() failed
 $ 
@@ -30,7 +30,7 @@ The "simple" test allocates more than half of available physical memory, and the
 
 When you are done, your kernel should pass all the tests in both cowtest and usertests. That is:
 
-```
+```bash
 $ cowtest
 simple: ok
 simple: ok
@@ -347,7 +347,7 @@ fork(void)
 
 
 
-### step2 修改uvmcopy
+### step2 修改 uvmcopy
 
 修改 `uvmcopy()` 以将父级的物理页面映射到子级，而不是分配新页面。在子级和父级的 `PTE` 中清除`PTE_W`。
 
@@ -437,7 +437,7 @@ uvmcopy(pagetable_t old, pagetable_t new, uint64 sz)
 
 
 
-usertrap某种程度上存储并恢复硬件状态，但是它也需要**检查触发trap的原因，以确定相应的处理方式**
+usertrap 某种程度上存储并恢复硬件状态，但是它也需要**检查触发 trap 的原因，以确定相应的处理方式**
 
 
 
@@ -570,7 +570,7 @@ else if(r_scause() == 0xf){
 
 
 ```c
-else if(r_scause() == 0xf){
+else if(r_scause() == 0xf) {
     // 发生页错误，此时应当分配页进行重新映射，并添加写标志位
     // 获取发生页错误的虚拟地址
     uint64 err_vaddr = PGROUNDDOWN(r_stval());
@@ -604,5 +604,6 @@ else if(r_scause() == 0xf){
     printf("            sepc=%p stval=%p\n", r_sepc(), r_stval());
     p->killed = 1;
   }
+}
 ```
 
