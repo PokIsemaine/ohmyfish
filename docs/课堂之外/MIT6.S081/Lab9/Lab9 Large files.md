@@ -6,7 +6,7 @@ In this assignment you'll increase the maximum size of an xv6 file. Currently xv
 
 The `bigfile` command creates the longest file it can, and reports that size:
 
-```
+```bash
 $ bigfile
 ..
 wrote 268 blocks
@@ -134,7 +134,7 @@ bmap(struct inode *ip, uint bn)
 
 原版 `xv6` 文件限制为$268$个块或$268*BSIZE$ 字节（在`xv6`中$BSIZE$为$1024$）。
 
-一个`xv6 inode`包含12个“直接”块号和一个“间接”块号，“一级间接”块指一个最多可容纳256个块号的块，总共$12+256=268$个块
+一个`xv6 inode`包含 $12$ 个“直接”块号和一个“间接”块号，“一级间接”块指一个最多可容纳 $256$ 个块号的块，总共$12+256=268$个块
 
 
 
@@ -154,7 +154,7 @@ $
 
 ### 优化策略
 
-腾出一块直接块给二级间接块，这样的话就能将一个文件大小限制扩展到$256*256 + 256 + 11 = 65803$个块
+腾出一块直接块给二级间接块，这样的话就能将一个文件大小限制扩展到 $256*256 + 256 + 11 = 65803$ 个块
 
 ![image-20220721145617705](https://s2.loli.net/2022/07/21/usaf9rK26CpAUEN.png)
 
