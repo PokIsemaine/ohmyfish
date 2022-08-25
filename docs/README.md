@@ -41,12 +41,12 @@
 
 * [C++ Primer 学习笔记](C++/C++primer/README.md) 
 * [Effictive 系列](C++/Effective/README.md)
-* [侯捷 C++ 系列 更新中](/C++/侯捷C++/README.md)
+* [侯捷 C++ 系列](/C++/侯捷C++/README.md)
 
 ### 专业课
 
 * [数据结构 严蔚敏 课本知识点整理](专业课/数据结构%20严蔚敏/README.md)
-* [数据库原理 课本知识点整理 更新中](/专业课/数据库原理%20王珊/README.md)
+* [数据库原理 课本知识点整理](/专业课/数据库原理%20王珊/README.md)
 * [需求工程](专业课/需求工程/README.md)
 * [操作系统 课本知识点整理]()
 * [计算机网络 课本知识点整理]()
@@ -57,12 +57,16 @@
 
 * [设计模式](/课堂之外/设计模式/README.md)
 * [我的软件工程观](/课堂之外/我的软件工程观/README.md)
-* [我的计算机世界观]()
+* [我的计算机世界观](/none)
 * [MIT6.s081](/课堂之外/MIT6.S081/README.md)
+* [CS144](/none)
 
-### 项目准备
+### 项目
 
-* [muduo网络库 学习笔记](/项目准备/muduo网络库/README.md)
+**小裁缝阶段：啥也不会，纯纯缝合**
+
+* [fishjoy](https://github.com/PokIsemaine/fishjoy)：C++ 服务器框架，塞就完事啦！
+* [FISHJSON](https://github.com/PokIsemaine/FISHJSON)：C 语言 JSON 解析器（大一 C 语言课设）
 
 ### 资源汇总
 
