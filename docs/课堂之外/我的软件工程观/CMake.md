@@ -1,12 +1,12 @@
 # 现代 CMake 高级教程
 
-## 关于CMake
+## 关于 CMake
 
-## 第0章：命令行小技巧
+## 第 0 章：命令行小技巧
 
 
 
-## 第1章：添加源文件
+## 第 1 章：添加源文件
 
 **单个源文件**
 
@@ -101,9 +101,9 @@ target_sources(main PUBLIC ${sources})
 
 
 
-## 第2章：项目配置变量
+## 第 2 章：项目配置变量
 
-**`CMAKE_BUILD_TYPE` 构建的类型，调试模式还是发布模式**
+** `CMAKE_BUILD_TYPE` 构建的类型，调试模式还是发布模式**
 
 * `CMAKE_BUILD_TYPE` 是 `CMake` 中一个特殊的变量，用于控制构建类型，他的值可以是：
 * `Debug` 调试模式，完全不优化，生成调试信息，方便调试程序
@@ -114,7 +114,7 @@ target_sources(main PUBLIC ${sources})
 
 **各种构建模式在编译器选项上的区别**
 
-在Release模式下，追求的是程序的最佳性能表现，在此情况下，编译器会对程序做最大的代码优化以达到最快运行速度。另一方面，由于代码优化后不与源代码一致，此模式下一般会丢失大量的调试信息。
+在 Release 模式下，追求的是程序的最佳性能表现，在此情况下，编译器会对程序做最大的代码优化以达到最快运行速度。另一方面，由于代码优化后不与源代码一致，此模式下一般会丢失大量的调试信息。
 1. `Debug`: `-O0 -g`
 2. `Release`: `-O3 -DNDEBUG`
 3. `MinSizeRel`: `-Os -DNDEBUG`
@@ -167,10 +167,10 @@ add_subdirectory(mylib)
 
 其他
 
-* `PROJECT_SOURCE_DIR`：当前项目源码路径（存放main.cpp的地方）
-* `PROJECT_BINARY_DIR`：当前项目输出路径（存放main.exe的地方）
-* `CMAKE_SOURCE_DIR`：根项目源码路径（存放main.cpp的地方）
-* `CMAKE_BINARY_DIR`：根项目输出路径（存放main.exe的地方）
+* `PROJECT_SOURCE_DIR`：当前项目源码路径（存放 `main.cpp` 的地方）
+* `PROJECT_BINARY_DIR`：当前项目输出路径（存放 `main.exe` 的地方）
+* `CMAKE_SOURCE_DIR`：根项目源码路径（存放 `main.cpp` 的地方）
+* `CMAKE_BINARY_DIR`：根项目输出路径（存放 `main.exe` 的地方）
 * `PROJECT_IS_TOP_LEVEL：BOOL`类型，表示当前项目是否是（最顶层的）根项目
 * `PROJECT_NAME`：当前项目名
 * `CMAKE_PROJECT_NAME`：根项目的项目名
