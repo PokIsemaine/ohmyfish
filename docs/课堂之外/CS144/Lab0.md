@@ -78,7 +78,7 @@ const uint32_t a_dns_server_numeric = a_dns_server.ipv4_numeric();
 
 发送请求的时候，将实验手册的 `Fetch a Web page` 练习转换为代码即可，换行对应 `\r\n`
 
-![image-20220830080419538](../../../../../.config/Typora/typora-user-images/image-20220830080419538.png)
+![CS144 lab0.png](https://s2.loli.net/2022/09/04/USBzy6oKpcMu5HD.png)
 
 
 

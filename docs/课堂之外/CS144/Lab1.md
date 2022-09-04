@@ -95,7 +95,9 @@ class StreamReassembler {
 
 个人对 `capacity` 的理解其实就是把 `Lab0` 里实现的 `ByteStream`  中空闲容量的部分拿来作为上图的红色区域（`auxiliary storage`）
 
-![CS144LAB1](../../../../CS144LAB1.png)
+![CS144LAB1.png](https://s2.loli.net/2022/09/04/K6k9DuTOsAr5plw.png)
+
+
 
 
 
@@ -124,10 +126,229 @@ FAQ
 
 
 
-
-
 ### 代码实现
+
+* 主要采用 `map` 来实现，因为增删改查都是$O(NlogN)$ 复杂度，而且自带排序 + 去重功能
+
+* 基本思路是按字符遍历输入，然后根据当前状态来分类讨论
+	* 分类讨论两个区域的状态：第一个区域是已经排序重组的但还没被上层应用接受的区域（红色），第二个区域是到达但还没被排序重组的区域（绿色）。然后按照还有没有空间就会有四种状态（你可以简化合并），特别注意 `capacity` 的定义
+		* 红满，绿没满（不存在）
+		* 红满，绿满
+		* 红没满，绿满
+		* 红没满，绿没满
+	* 然后根据两个区域不同状态你可以进行不同决策
+	* 考虑什么是真正满了，什么是好像满了但还可以塞
+	* 字符是有优先级的，如果当前字符就是你重组需要的下一个字符，考虑删除等待区域低优先级的字符来给高优先级字符腾出位置
+* 尝试将模块用函数划分更加清晰，堆在一起难调试
+* 获取一些标记可以尝试写成函数每次动态获取，因为你可能忘记改
+* C++ map 如果要实现遍历 + 删除，注意迭代器失效问题
+* 题面谜语人可能需要面向用例编程，卡壳了可以适当停几天回来重新调
+
+
+
+
+
+`stream_reassembler.hh`
+
+```c++
+#ifndef SPONGE_LIBSPONGE_STREAM_REASSEMBLER_HH
+#define SPONGE_LIBSPONGE_STREAM_REASSEMBLER_HH
+
+#include "byte_stream.hh"
+
+#include <cstdint>
+#include <string>
+#include <map>
+
+//! \brief A class that assembles a series of excerpts from a byte stream (possibly out of order,
+//! possibly overlapping) into an in-order byte stream.
+class StreamReassembler {
+  private:
+    // Your code here -- add private members as necessary.
+    std::map<size_t, char> _storage = {};
+    size_t _byteStreamWant = 0;
+    int _eofIndex = -1;
+    ByteStream _output;  //!< The reassembled in-order byte stream
+    size_t _capacity;    //!< The maximum number of bytes
+
+  public:
+    //! \brief Construct a `StreamReassembler` that will store up to `capacity` bytes.
+    //! \note This capacity limits both the bytes that have been reassembled,
+    //! and those that have not yet been reassembled.
+    StreamReassembler(const size_t capacity);
+
+    //! \brief Receive a substring and write any newly contiguous bytes into the stream.
+    //!
+    //! The StreamReassembler will stay within the memory limits of the `capacity`.
+    //! Bytes that would exceed the capacity are silently discarded.
+    //!
+    //! \param data the substring
+    //! \param index indicates the index (place in sequence) of the first byte in `data`
+    //! \param eof the last byte of `data` will be the last byte in the entire stream
+    void push_substring(const std::string &data, const uint64_t index, const bool eof);
+
+    //! \name Access the reassembled byte stream
+    //!@{
+    const ByteStream &stream_out() const { return _output; }
+    ByteStream &stream_out() { return _output; }
+    //!@}
+
+    //! The number of bytes in the substrings stored but not yet reassembled
+    //!
+    //! \note If the byte at a particular index has been pushed more than once, it
+    //! should only be counted once for the purpose of this function.
+    size_t unassembled_bytes() const;
+
+    //! \brief Is the internal state empty (other than the output stream)?
+    //! \returns `true` if no substrings are waiting to be assembled
+    bool empty() const;
+
+    bool isFull() const;
+
+    void helpAssembled(const char data, const bool eof);
+
+    void helpStorage(const char data, const size_t index);
+
+    int getFirstUnassembled() const;
+};
+
+#endif  // SPONGE_LIBSPONGE_STREAM_REASSEMBLER_HH
+
+```
+
+`stream_reassembler.cc`
+
+```c++
+#include "stream_reassembler.hh"
+#include <string>
+// Dummy implementation of a stream reassembler.
+
+// For Lab 1, please replace with a real implementation that passes the
+// automated checks run by `make check_lab1`.
+
+// You will need to add private members to the class declaration in `stream_reassembler.hh`
+
+template <typename... Targs>
+void DUMMY_CODE(Targs &&... /* unused */) {}
+
+using namespace std;
+
+StreamReassembler::StreamReassembler(const size_t capacity) : _output(capacity), _capacity(capacity) {}
+
+void StreamReassembler::helpAssembled(const char data, const bool eof) {
+    // 去除辅助等待重组区域中的和当前 data 重复的字符
+    while(!_storage.empty() && getFirstUnassembled() <= static_cast<int>(_byteStreamWant)) {
+        _storage.erase(_storage.begin());
+    }
+
+    if(isFull() && _output.remaining_capacity() == 0) {
+        return ;
+    } else if(_output.remaining_capacity() > 0) {
+        if(isFull()) _storage.erase(std::prev(_storage.end())); // 腾出一个位置给要重组排序的字符
+        ++_byteStreamWant;
+        std::string writeData = string(1, data);
+        _output.write(writeData);
+        if(eof) _output.end_input();
+    }
+}
+
+void StreamReassembler::helpStorage(const char data, const size_t index) {
+    if(isFull() && _output.remaining_capacity() == 0) return ;
+    _storage[index] = data;
+}
+
+//! \details This function accepts a substring (aka a segment) of bytes,
+//! possibly out-of-order, from the logical stream, and assembles any newly
+//! contiguous substrings and writes them into the output stream in order.
+void StreamReassembler::push_substring(const string &data, const size_t index, const bool eof) {
+    if(data.empty()) {
+        if(eof) _output.end_input();
+        return;
+    }
+    if(isFull() && _output.remaining_capacity() == 0) return ;
+
+    if(eof)_eofIndex = index + data.size() - 1;
+    for(size_t i = 0; i < data.size(); ++i) {
+        size_t curIndex = index + i;
+        if(curIndex < _byteStreamWant) continue;
+        else if(curIndex == _byteStreamWant) {
+            helpAssembled(data[i], static_cast<int>(curIndex) == _eofIndex);
+        } else {
+            helpStorage(data[i], curIndex);
+        }
+    }
+	// 看看等待区域有没有可以进入 _output 的
+    for(auto iter = _storage.begin(); iter != _storage.end();) {
+        if(iter->first == _byteStreamWant && _output.remaining_capacity() > 0) {
+            ++_byteStreamWant;
+            std::string writeData = string(1, iter->second);
+            _output.write(writeData);
+            if(static_cast<int>(iter->first) == _eofIndex) _output.end_input();
+            _storage.erase(iter++);
+        } else {    // 首个不行就直接返回
+            return ;
+        }
+    }
+}
+
+size_t StreamReassembler::unassembled_bytes() const { return _storage.size(); }
+
+bool StreamReassembler::empty() const { return _storage.empty(); }
+
+bool StreamReassembler::isFull() const { return _output.buffer_size() +_storage.size() >= _capacity; }
+
+int StreamReassembler::getFirstUnassembled() const {
+    if(_storage.empty()) return  -1;
+    return (*_storage.begin()).first;
+}
+
+```
 
 
 
 ### 测试
+
+`win`  和 `many` 的测试可以接受但有些慢，后期尝试进行一些优化。
+
+```bash
+Test project /home/zsl/CLionProjects/sponge/build
+      Start 18: t_strm_reassem_single
+ 1/16 Test #18: t_strm_reassem_single ............   Passed    0.00 sec
+      Start 19: t_strm_reassem_seq
+ 2/16 Test #19: t_strm_reassem_seq ...............   Passed    0.00 sec
+      Start 20: t_strm_reassem_dup
+ 3/16 Test #20: t_strm_reassem_dup ...............   Passed    0.01 sec
+      Start 21: t_strm_reassem_holes
+ 4/16 Test #21: t_strm_reassem_holes .............   Passed    0.00 sec
+      Start 22: t_strm_reassem_many
+ 5/16 Test #22: t_strm_reassem_many ..............   Passed    0.63 sec
+      Start 23: t_strm_reassem_overlapping
+ 6/16 Test #23: t_strm_reassem_overlapping .......   Passed    0.00 sec
+      Start 24: t_strm_reassem_win
+ 7/16 Test #24: t_strm_reassem_win ...............   Passed    0.78 sec
+      Start 25: t_strm_reassem_cap
+ 8/16 Test #25: t_strm_reassem_cap ...............   Passed    0.08 sec
+      Start 26: t_byte_stream_construction
+ 9/16 Test #26: t_byte_stream_construction .......   Passed    0.00 sec
+      Start 27: t_byte_stream_one_write
+10/16 Test #27: t_byte_stream_one_write ..........   Passed    0.00 sec
+      Start 28: t_byte_stream_two_writes
+11/16 Test #28: t_byte_stream_two_writes .........   Passed    0.00 sec
+      Start 29: t_byte_stream_capacity
+12/16 Test #29: t_byte_stream_capacity ...........   Passed    0.27 sec
+      Start 30: t_byte_stream_many_writes
+13/16 Test #30: t_byte_stream_many_writes ........   Passed    0.01 sec
+      Start 53: t_address_dt
+14/16 Test #53: t_address_dt .....................   Passed    0.01 sec
+      Start 54: t_parser_dt
+15/16 Test #54: t_parser_dt ......................   Passed    0.00 sec
+      Start 55: t_socket_dt
+16/16 Test #55: t_socket_dt ......................   Passed    0.00 sec
+
+100% tests passed, 0 tests failed out of 16
+
+Total Test time (real) =   1.81 sec
+[100%] Built target check_lab1
+
+```
+
