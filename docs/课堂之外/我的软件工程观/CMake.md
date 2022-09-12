@@ -103,7 +103,7 @@ target_sources(main PUBLIC ${sources})
 
 ## 第 2 章：项目配置变量
 
-** `CMAKE_BUILD_TYPE` 构建的类型，调试模式还是发布模式**
+**`CMAKE_BUILD_TYPE`构建的类型，调试模式还是发布模式**
 
 * `CMAKE_BUILD_TYPE` 是 `CMake` 中一个特殊的变量，用于控制构建类型，他的值可以是：
 * `Debug` 调试模式，完全不优化，生成调试信息，方便调试程序
@@ -183,8 +183,8 @@ add_subdirectory(mylib)
 project(项目名 LANGUAGES 使用的语言列表...)  指定了该项目使用了哪些编程语言。
 目前支持的语言包括：
 
-* C：C语言
-* CXX：C++语言
+* C：C 言
+* CXX：C++ 语言
 * ASM：汇编语言
 * Fortran：老年人的编程语言
 * CUDA：英伟达的 CUDA（3.8 版本新增）

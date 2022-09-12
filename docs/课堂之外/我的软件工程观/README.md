@@ -15,7 +15,9 @@
 * KWHL
 * STAR（项目描述）
 * [Theory of debug(调试理论)](/课堂之外/我的软件工程观/Theory%20of%20debug.md)
-* 设计模式
+* DevOps
+* 设计模式（代码的变化）
+* 契约精神（人的变化）
 
 
 
