@@ -149,9 +149,455 @@ TCP 发送方可以做到这一点，但就`class`（课程 or 类？）而言�
 
 ## 代码
 
-![Lab3](../../../../CS144/Lab3.png)
+![image.png](https://s2.loli.net/2022/09/13/qMKbiXUxAPRwc12.png)
+
+###  重传计时器
+
+* 启动和判断是否启动了
+* 停止
+* 计时
+* 判断是否超时（启动状态 + 超时）
+
+
+
+### tick
+
+* `tick` 被调用，计时器的时间开始流逝
+* 如果超时则尝试重传最早的 `outstanding segment`
+	* 如果存在最早的 `outstanding segment`
+		* 重新放到待发送队列中
+		* 如果接收方窗口有空余说明是网络堵塞而不是窗口慢了造成的，使用指数退避将超时时间翻倍，做一个形式化的拥塞控制
+		* **连续**重传次数 + 1
+		* 重启计时器 
+
+
+
+### fill_window
+
+* 能填充的容量 = 现在发送方窗口的容量 减去 `outstanding segment` 的字节数
+
+	* 如果发送方窗口容量为 0 则设为 1
+
+* 如果可以填充窗口
+
+	* 如果还没发过 `syn` 就在 `header`  里设置并标记
+	* 设置 `header` 的 `seqno` 为 `next_seqno`
+	* 计算 payload 的最大的大小（包含 syn 占用的），并按这个大小从流中读取
+		* 注意实际读取的和最大可能不一样，可能流没那么数据
+	* 看要不要设置 `fin`
+		* `stream` 到达 `eof` 状态
+		* 还有 1 空间容量留给 `fin`
+		* 没有设置过 `fin`
+	* 把读到的数据推到 `segment` 的 `payload` 里
+	* 如果 `segment` 不占序列号直接退出，否则发送 `segment` 到 待发送队列，并进行跟踪，更新 next_seqno
+	* 如果 `segment` 被设置了 `fin` 也直接推出
+
+	
+
+###  ack_received
+
+* 判断序列号是否合法
+* 根据 ackno 去除 `outstanding segment` 的中已经被完全确认的 `segment`
+	* 如果发生去除，那么超时时间设为初始超时时间并重启计时器
+* 重置连续重传次数
+* 重置接收方窗口大小并再次调用 `fill_window`
+
+
+
+`tcp_sender.hh`
+
+```c++
+#ifndef SPONGE_LIBSPONGE_TCP_SENDER_HH
+#define SPONGE_LIBSPONGE_TCP_SENDER_HH
+
+#include "byte_stream.hh"
+#include "tcp_config.hh"
+#include "tcp_segment.hh"
+#include "wrapping_integers.hh"
+
+#include <functional>
+#include <queue>
+#include <map>
+
+class RetransmissionTimer {
+  private:
+    size_t _ticks{0};
+    bool _started{false};
+  public:
+    RetransmissionTimer() : _ticks(0), _started(false) {}
+
+    void start() {
+        _ticks = 0;
+        _started = true;
+    }
+
+    void stop() {
+        _ticks = 0;
+        _started = false;
+    }
+
+    void timePass(const size_t ms_since_last_tick) {
+        _ticks += ms_since_last_tick;
+    }
+
+    bool isStart() const {
+        return _started;
+    }
+
+    bool isExpired(const unsigned int timeout) {
+        return _started && _ticks >= timeout;
+    }
+};
+//! \brief The "sender" part of a TCP implementation.
+
+//! Accepts a ByteStream, divides it up into segments and sends the
+//! segments, keeps track of which segments are still in-flight,
+//! maintains the Retransmission Timer, and retransmits in-flight
+//! segments if the retransmission timer expires.
+class TCPSender {
+  private:
+    //! our initial sequence number, the number for our SYN.
+    WrappingInt32 _isn;
+
+    //! outbound queue of segments that the TCPSender wants sent
+    std::queue<TCPSegment> _segments_out{};
+
+    //! retransmission timer for the connection
+    unsigned int _initial_retransmission_timeout;
+
+    //! outgoing stream of bytes that have not yet been sent
+    ByteStream _stream;
+
+    //! the (absolute) sequence number for the next byte to be sent
+    uint64_t _next_seqno{0};
+
+    RetransmissionTimer _timer{};
+
+    size_t _receiver_window_size{1};
+
+    //! number of consecutive retransmissions
+    size_t _consecutive_retransmission_count{0};
+
+    bool _set_syn_flag{false};
+
+    bool _set_fin_flag{false};
+
+    size_t _outstanding_bytes{0};
+
+    std::map<size_t, TCPSegment> _outstanding_segments {};
+
+    unsigned int _curr_rto;
+
+  public:
+    //! Initialize a TCPSender
+    TCPSender(const size_t capacity = TCPConfig::DEFAULT_CAPACITY,
+              const uint16_t retx_timeout = TCPConfig::TIMEOUT_DFLT,
+              const std::optional<WrappingInt32> fixed_isn = {});
+
+    //! \name "Input" interface for the writer
+    //!@{
+    ByteStream &stream_in() { return _stream; }
+    const ByteStream &stream_in() const { return _stream; }
+    //!@}
+
+    //! \name Methods that can cause the TCPSender to send a segment
+    //!@{
+
+    //! \brief A new acknowledgment was received
+    void ack_received(const WrappingInt32 ackno, const uint16_t window_size);
+
+    //! \brief Generate an empty-payload segment (useful for creating empty ACK segments)
+    void send_empty_segment();
+
+    //! \brief create and send segments to fill as much of the window as possible
+    void fill_window();
+
+    //! \brief Notifies the TCPSender of the passage of time
+    void tick(const size_t ms_since_last_tick);
+    //!@}
+
+    //! \name Accessors
+    //!@{
+
+    //! \brief How many sequence numbers are occupied by segments sent but not yet acknowledged?
+    //! \note count is in "sequence space," i.e. SYN and FIN each count for one byte
+    //! (see TCPSegment::length_in_sequence_space())
+    size_t bytes_in_flight() const;
+
+    //! \brief Number of consecutive retransmissions that have occurred in a row
+    unsigned int consecutive_retransmissions() const;
+
+    //! \brief TCPSegments that the TCPSender has enqueued for transmission.
+    //! \note These must be dequeued and sent by the TCPConnection,
+    //! which will need to fill in the fields that are set by the TCPReceiver
+    //! (ackno and window size) before sending.
+    std::queue<TCPSegment> &segments_out() { return _segments_out; }
+    //!@}
+
+    //! \name What is the next sequence number? (used for testing)
+    //!@{
+
+    //! \brief absolute seqno for the next byte to be sent
+    uint64_t next_seqno_absolute() const { return _next_seqno; }
+
+    //! \brief relative seqno for the next byte to be sent
+    WrappingInt32 next_seqno() const { return wrap(_next_seqno, _isn); }
+    //!@}
+
+    // help send segment
+    void send_segment(TCPSegment& segment);
+    // help trace segment
+    void trace_segment(TCPSegment& segment);
+
+};
+
+#endif  // SPONGE_LIBSPONGE_TCP_SENDER_HH
+
+```
+
+
+
+`tcp_sender.cc`
+
+```c++
+#include "tcp_sender.hh"
+
+#include "tcp_config.hh"
+
+#include <random>
+
+// Dummy implementation of a TCP sender
+
+// For Lab 3, please replace with a real implementation that passes the
+// automated checks run by `make check_lab3`.
+
+template <typename... Targs>
+void DUMMY_CODE(Targs &&... /* unused */) {}
+
+using namespace std;
+
+//! \param[in] capacity the capacity of the outgoing byte stream
+//! \param[in] retx_timeout the initial amount of time to wait before retransmitting the oldest outstanding segment
+//! \param[in] fixed_isn the Initial Sequence Number to use, if set (otherwise uses a random ISN)
+TCPSender::TCPSender(const size_t capacity, const uint16_t retx_timeout, const std::optional<WrappingInt32> fixed_isn)
+    : _isn(fixed_isn.value_or(WrappingInt32{random_device()()}))
+    , _initial_retransmission_timeout{retx_timeout}
+    , _stream(capacity)
+    , _curr_rto{retx_timeout} {}
+
+uint64_t TCPSender::bytes_in_flight() const { return _outstanding_bytes; }
+
+void TCPSender::send_segment(TCPSegment& segment) {
+    _segments_out.emplace(segment);
+    // if the timer is not running, start it running
+    if(!_timer.isStart()) {
+        _timer.start();
+    }
+}
+
+void TCPSender::trace_segment(TCPSegment& segment) {
+    _outstanding_bytes += segment.length_in_sequence_space();
+    _outstanding_segments.emplace(next_seqno_absolute(), segment);
+}
+
+void TCPSender::fill_window() {
+    size_t cur_window_size = _receiver_window_size ? _receiver_window_size : 1;
+
+    while (cur_window_size > _outstanding_bytes) {
+        TCPSegment segment;
+
+        // occupy = syn? + payload + fin?
+        // occupy + _outstanding_bytes <= cur_window_size
+
+        // syn
+        if(!_set_syn_flag) {
+            segment.header().syn = true;
+            _set_syn_flag = true;
+        }
+        // occupy ?
+        segment.header().seqno = next_seqno();
+
+        // payload
+        size_t payload_size = min(cur_window_size - _outstanding_bytes - segment.header().syn
+                                  , TCPConfig::MAX_PAYLOAD_SIZE);
+
+        string payload = _stream.read(payload_size);    // payload.size() != payload_size !!!
+
+        // fin
+        if(_stream.eof() && !_set_fin_flag
+            && payload.size() + _outstanding_bytes  + 1 <= cur_window_size) {
+            _set_fin_flag = true;
+            segment.header().fin = true;
+        }
+
+        segment.payload() = Buffer(std::move(payload));
+        // empty data
+        if(segment.length_in_sequence_space() == 0) {
+            break;
+        }
+
+        send_segment(segment);
+        trace_segment(segment);
+        _next_seqno += segment.length_in_sequence_space();
+
+        if(segment.header().fin) {
+            break ;
+        }
+    }
+
+}
+
+//! \param ackno The remote receiver's ackno (acknowledgment number)
+//! \param window_size The remote receiver's advertised window size
+void TCPSender::ack_received(const WrappingInt32 ackno, const uint16_t window_size) {
+    uint64_t abs_seqno = unwrap(ackno, _isn, _next_seqno);
+    if(abs_seqno > _next_seqno) {
+        return ;
+    }
+
+    // remove any that have now been fully acknowledged
+    for(auto iter = _outstanding_segments.begin(); iter != _outstanding_segments.end();) {
+        if(iter->first + iter->second.length_in_sequence_space() -1 < abs_seqno) {
+            _outstanding_bytes -= iter->second.length_in_sequence_space();
+            iter = _outstanding_segments.erase(iter);
+
+            // Set the RTO back to its “initial value.”
+            _curr_rto = _initial_retransmission_timeout;
+            // If the sender has any outstanding data, restart the retransmission timer so that it
+            // will expire after RTO milliseconds (for the current value of RTO).
+            _timer.start();
+        } else {
+            break ;
+        }
+    }
+
+    // When all outstanding data has been acknowledged, stop the retransmission timer
+    if(!bytes_in_flight()) {
+        _timer.stop();
+    }
+
+    // Reset the count of “consecutive retransmissions” back to zero.
+    _consecutive_retransmission_count = 0;
+
+    _receiver_window_size = window_size;
+    fill_window();
+}
+
+//! \param[in] ms_since_last_tick the number of milliseconds since the last call to this method
+void TCPSender::tick(const size_t ms_since_last_tick) {
+    // time passing comes from the tick method being called
+    _timer.timePass(ms_since_last_tick);
+
+    //  retransmission timer has expired
+    if(_timer.isExpired(_curr_rto)) {
+        auto earliest_outstanding_segment = _outstanding_segments.begin();
+        if(earliest_outstanding_segment != _outstanding_segments.end()) {
+            // Retransmit the earliest (the lowest sequence number) segment that hasn’t been fully
+            // acknowledged by the TCP receiver
+            // You do not need to track resended segments !!!
+            send_segment(_outstanding_segments.begin()->second);
+
+            if(_receiver_window_size > 0) { // window size > 0 && timeout --> network congestion
+                // Double the value of RTO. This is called “exponential backoff”
+                _curr_rto = _curr_rto * 2;
+            }
+
+            // Keep track of the number of consecutive retransmissions, and increment it
+            _consecutive_retransmission_count++;
+
+            // Reset the retransmission timer and start it
+            _timer.start();
+        }
+    }
+}
+
+unsigned int TCPSender::consecutive_retransmissions() const { return _consecutive_retransmission_count; }
+
+void TCPSender::send_empty_segment() {
+    // wait to be called and test
+    TCPSegment segment;
+    segment.header().seqno = next_seqno();
+    _segments_out.emplace(segment);
+}
+```
 
 
 
 ## 测试
+
+```c++
+Test project /home/zsl/CLionProjects/sponge/build
+      Start  1: t_wrapping_ints_cmp
+ 1/33 Test  #1: t_wrapping_ints_cmp ..............   Passed    0.01 sec
+      Start  2: t_wrapping_ints_unwrap
+ 2/33 Test  #2: t_wrapping_ints_unwrap ...........   Passed    0.00 sec
+      Start  3: t_wrapping_ints_wrap
+ 3/33 Test  #3: t_wrapping_ints_wrap .............   Passed    0.00 sec
+      Start  4: t_wrapping_ints_roundtrip
+ 4/33 Test  #4: t_wrapping_ints_roundtrip ........   Passed    0.16 sec
+      Start  5: t_recv_connect
+ 5/33 Test  #5: t_recv_connect ...................   Passed    0.00 sec
+      Start  6: t_recv_transmit
+ 6/33 Test  #6: t_recv_transmit ..................   Passed    0.03 sec
+      Start  7: t_recv_window
+ 7/33 Test  #7: t_recv_window ....................   Passed    0.00 sec
+      Start  8: t_recv_reorder
+ 8/33 Test  #8: t_recv_reorder ...................   Passed    0.00 sec
+      Start  9: t_recv_close
+ 9/33 Test  #9: t_recv_close .....................   Passed    0.00 sec
+      Start 10: t_recv_special
+10/33 Test #10: t_recv_special ...................   Passed    0.00 sec
+      Start 11: t_send_connect
+11/33 Test #11: t_send_connect ...................   Passed    0.00 sec
+      Start 12: t_send_transmit
+12/33 Test #12: t_send_transmit ..................   Passed    0.03 sec
+      Start 13: t_send_retx
+13/33 Test #13: t_send_retx ......................   Passed    0.00 sec
+      Start 14: t_send_window
+14/33 Test #14: t_send_window ....................   Passed    0.02 sec
+      Start 15: t_send_ack
+15/33 Test #15: t_send_ack .......................   Passed    0.01 sec
+      Start 16: t_send_close
+16/33 Test #16: t_send_close .....................   Passed    0.01 sec
+      Start 17: t_send_extra
+17/33 Test #17: t_send_extra .....................   Passed    0.01 sec
+      Start 18: t_strm_reassem_single
+18/33 Test #18: t_strm_reassem_single ............   Passed    0.00 sec
+      Start 19: t_strm_reassem_seq
+19/33 Test #19: t_strm_reassem_seq ...............   Passed    0.00 sec
+      Start 20: t_strm_reassem_dup
+20/33 Test #20: t_strm_reassem_dup ...............   Passed    0.01 sec
+      Start 21: t_strm_reassem_holes
+21/33 Test #21: t_strm_reassem_holes .............   Passed    0.00 sec
+      Start 22: t_strm_reassem_many
+22/33 Test #22: t_strm_reassem_many ..............   Passed    0.62 sec
+      Start 23: t_strm_reassem_overlapping
+23/33 Test #23: t_strm_reassem_overlapping .......   Passed    0.00 sec
+      Start 24: t_strm_reassem_win
+24/33 Test #24: t_strm_reassem_win ...............   Passed    0.79 sec
+      Start 25: t_strm_reassem_cap
+25/33 Test #25: t_strm_reassem_cap ...............   Passed    0.08 sec
+      Start 26: t_byte_stream_construction
+26/33 Test #26: t_byte_stream_construction .......   Passed    0.00 sec
+      Start 27: t_byte_stream_one_write
+27/33 Test #27: t_byte_stream_one_write ..........   Passed    0.00 sec
+      Start 28: t_byte_stream_two_writes
+28/33 Test #28: t_byte_stream_two_writes .........   Passed    0.00 sec
+      Start 29: t_byte_stream_capacity
+29/33 Test #29: t_byte_stream_capacity ...........   Passed    0.25 sec
+      Start 30: t_byte_stream_many_writes
+30/33 Test #30: t_byte_stream_many_writes ........   Passed    0.01 sec
+      Start 53: t_address_dt
+31/33 Test #53: t_address_dt .....................   Passed    0.14 sec
+      Start 54: t_parser_dt
+32/33 Test #54: t_parser_dt ......................   Passed    0.00 sec
+      Start 55: t_socket_dt
+33/33 Test #55: t_socket_dt ......................   Passed    0.01 sec
+
+100% tests passed, 0 tests failed out of 33
+
+Total Test time (real) =   2.27 sec
+[100%] Built target check_lab3
+
+```
 
