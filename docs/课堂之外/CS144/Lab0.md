@@ -195,8 +195,8 @@ FAQ：
 #ifndef SPONGE_LIBSPONGE_BYTE_STREAM_HH
 #define SPONGE_LIBSPONGE_BYTE_STREAM_HH
 
-#include <string>
 #include <deque>
+#include <string>
 
 //! \brief An in-order byte stream.
 
@@ -299,17 +299,16 @@ class ByteStream {
 // You will need to add private members to the class declaration in `byte_stream.hh`
 
 template <typename... Targs>
-void DUMMY_CODE(Targs &&... /* unused */) {}
+void DUMMY_CODE(Targs &&.../* unused */) {}
 
 using namespace std;
 
-ByteStream::ByteStream(const size_t capacity)\
-    : m_capacity(capacity) {}
+ByteStream::ByteStream(const size_t capacity) : m_capacity(capacity) {}
 
 size_t ByteStream::write(const string &data) {
     size_t remain = remaining_capacity();
     size_t written = 0;
-    for(size_t i = 0; i < min(remain, data.size()); ++i) {
+    for (size_t i = 0; i < min(remain, data.size()); ++i) {
         m_buffer.emplace_back(data[i]);
         ++written;
     }
@@ -321,7 +320,7 @@ size_t ByteStream::write(const string &data) {
 string ByteStream::peek_output(const size_t len) const {
     string ret;
     size_t curSize = buffer_size();
-    for(size_t i = 0; i < min(len, curSize); ++i) {
+    for (size_t i = 0; i < min(len, curSize); ++i) {
         ret += m_buffer[i];
     }
     return ret;
@@ -330,7 +329,7 @@ string ByteStream::peek_output(const size_t len) const {
 //! \param[in] len bytes will be removed from the output side of the buffer
 void ByteStream::pop_output(const size_t len) {
     size_t curSize = buffer_size();
-    for(size_t i = 0; i < min(len, curSize); ++i) {
+    for (size_t i = 0; i < min(len, curSize); ++i) {
         m_buffer.pop_front();
         ++m_bytesRead;
     }
@@ -367,4 +366,29 @@ size_t ByteStream::remaining_capacity() const { return m_capacity - m_buffer.siz
 
 ### 测试
 
-![image-20220830104910777](../../../../../.config/Typora/typora-user-images/image-20220830104910777.png)
+```shell
+Test project /home/zsl/CLionProjects/sponge/build
+    Start 26: t_byte_stream_construction
+1/9 Test #26: t_byte_stream_construction .......   Passed    0.00 sec
+    Start 27: t_byte_stream_one_write
+2/9 Test #27: t_byte_stream_one_write ..........   Passed    0.00 sec
+    Start 28: t_byte_stream_two_writes
+3/9 Test #28: t_byte_stream_two_writes .........   Passed    0.00 sec
+    Start 29: t_byte_stream_capacity
+4/9 Test #29: t_byte_stream_capacity ...........   Passed    0.22 sec
+    Start 30: t_byte_stream_many_writes
+5/9 Test #30: t_byte_stream_many_writes ........   Passed    0.01 sec
+    Start 31: t_webget
+6/9 Test #31: t_webget .........................   Passed    1.09 sec
+    Start 53: t_address_dt
+7/9 Test #53: t_address_dt .....................   Passed    0.03 sec
+    Start 54: t_parser_dt
+8/9 Test #54: t_parser_dt ......................   Passed    0.00 sec
+    Start 55: t_socket_dt
+9/9 Test #55: t_socket_dt ......................   Passed    0.01 sec
+
+100% tests passed, 0 tests failed out of 9
+
+Total Test time (real) =   1.37 sec
+```
+

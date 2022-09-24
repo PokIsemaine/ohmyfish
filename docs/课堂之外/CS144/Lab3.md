@@ -216,13 +216,14 @@ TCP 发送方可以做到这一点，但就`class`（课程 or 类？）而言�
 #include "wrapping_integers.hh"
 
 #include <functional>
-#include <queue>
 #include <map>
+#include <queue>
 
 class RetransmissionTimer {
   private:
     size_t _ticks{0};
     bool _started{false};
+
   public:
     RetransmissionTimer() : _ticks(0), _started(false) {}
 
@@ -236,17 +237,11 @@ class RetransmissionTimer {
         _started = false;
     }
 
-    void timePass(const size_t ms_since_last_tick) {
-        _ticks += ms_since_last_tick;
-    }
+    void timePass(const size_t ms_since_last_tick) { _ticks += ms_since_last_tick; }
 
-    bool isStart() const {
-        return _started;
-    }
+    bool isStart() const { return _started; }
 
-    bool isExpired(const unsigned int timeout) {
-        return _started && _ticks >= timeout;
-    }
+    bool isExpired(const unsigned int timeout) { return _started && _ticks >= timeout; }
 };
 //! \brief The "sender" part of a TCP implementation.
 
@@ -284,7 +279,7 @@ class TCPSender {
 
     size_t _outstanding_bytes{0};
 
-    std::map<size_t, TCPSegment> _outstanding_segments {};
+    std::map<size_t, TCPSegment> _outstanding_segments{};
 
     unsigned int _curr_rto;
 
@@ -345,10 +340,9 @@ class TCPSender {
     //!@}
 
     // help send segment
-    void send_segment(TCPSegment& segment);
+    void send_segment(TCPSegment &segment);
     // help trace segment
-    void trace_segment(TCPSegment& segment);
-
+    void trace_segment(TCPSegment &segment);
 };
 
 #endif  // SPONGE_LIBSPONGE_TCP_SENDER_HH
@@ -372,7 +366,7 @@ class TCPSender {
 // automated checks run by `make check_lab3`.
 
 template <typename... Targs>
-void DUMMY_CODE(Targs &&... /* unused */) {}
+void DUMMY_CODE(Targs &&.../* unused */) {}
 
 using namespace std;
 
@@ -387,15 +381,15 @@ TCPSender::TCPSender(const size_t capacity, const uint16_t retx_timeout, const s
 
 uint64_t TCPSender::bytes_in_flight() const { return _outstanding_bytes; }
 
-void TCPSender::send_segment(TCPSegment& segment) {
+void TCPSender::send_segment(TCPSegment &segment) {
     _segments_out.emplace(segment);
     // if the timer is not running, start it running
-    if(!_timer.isStart()) {
+    if (!_timer.isStart()) {
         _timer.start();
     }
 }
 
-void TCPSender::trace_segment(TCPSegment& segment) {
+void TCPSender::trace_segment(TCPSegment &segment) {
     _outstanding_bytes += segment.length_in_sequence_space();
     _outstanding_segments.emplace(next_seqno_absolute(), segment);
 }
@@ -406,11 +400,8 @@ void TCPSender::fill_window() {
     while (cur_window_size > _outstanding_bytes) {
         TCPSegment segment;
 
-        // occupy = syn? + payload + fin?
-        // occupy + _outstanding_bytes <= cur_window_size
-
         // syn
-        if(!_set_syn_flag) {
+        if (!_set_syn_flag) {
             segment.header().syn = true;
             _set_syn_flag = true;
         }
@@ -418,21 +409,20 @@ void TCPSender::fill_window() {
         segment.header().seqno = next_seqno();
 
         // payload
-        size_t payload_size = min(cur_window_size - _outstanding_bytes - segment.header().syn
-                                  , TCPConfig::MAX_PAYLOAD_SIZE);
+        size_t payload_size =
+            min(cur_window_size - _outstanding_bytes - segment.header().syn, TCPConfig::MAX_PAYLOAD_SIZE);
 
-        string payload = _stream.read(payload_size);    // payload.size() != payload_size !!!
+        string payload = _stream.read(payload_size);  // payload.size() != payload_size !!!
 
         // fin
-        if(_stream.eof() && !_set_fin_flag
-            && payload.size() + _outstanding_bytes  + 1 <= cur_window_size) {
+        if (_stream.eof() && !_set_fin_flag && payload.size() + _outstanding_bytes + 1 <= cur_window_size) {
             _set_fin_flag = true;
             segment.header().fin = true;
         }
 
         segment.payload() = Buffer(std::move(payload));
         // empty data
-        if(segment.length_in_sequence_space() == 0) {
+        if (segment.length_in_sequence_space() == 0) {
             break;
         }
 
@@ -440,24 +430,23 @@ void TCPSender::fill_window() {
         trace_segment(segment);
         _next_seqno += segment.length_in_sequence_space();
 
-        if(segment.header().fin) {
-            break ;
+        if (segment.header().fin) {
+            break;
         }
     }
-
 }
 
 //! \param ackno The remote receiver's ackno (acknowledgment number)
 //! \param window_size The remote receiver's advertised window size
 void TCPSender::ack_received(const WrappingInt32 ackno, const uint16_t window_size) {
     uint64_t abs_seqno = unwrap(ackno, _isn, _next_seqno);
-    if(abs_seqno > _next_seqno) {
-        return ;
+    if (abs_seqno > _next_seqno) {
+        return;
     }
 
     // remove any that have now been fully acknowledged
-    for(auto iter = _outstanding_segments.begin(); iter != _outstanding_segments.end();) {
-        if(iter->first + iter->second.length_in_sequence_space() -1 < abs_seqno) {
+    for (auto iter = _outstanding_segments.begin(); iter != _outstanding_segments.end();) {
+        if (iter->first + iter->second.length_in_sequence_space() - 1 < abs_seqno) {
             _outstanding_bytes -= iter->second.length_in_sequence_space();
             iter = _outstanding_segments.erase(iter);
 
@@ -467,12 +456,12 @@ void TCPSender::ack_received(const WrappingInt32 ackno, const uint16_t window_si
             // will expire after RTO milliseconds (for the current value of RTO).
             _timer.start();
         } else {
-            break ;
+            break;
         }
     }
 
     // When all outstanding data has been acknowledged, stop the retransmission timer
-    if(!bytes_in_flight()) {
+    if (!bytes_in_flight()) {
         _timer.stop();
     }
 
@@ -489,15 +478,15 @@ void TCPSender::tick(const size_t ms_since_last_tick) {
     _timer.timePass(ms_since_last_tick);
 
     //  retransmission timer has expired
-    if(_timer.isExpired(_curr_rto)) {
+    if (_timer.isExpired(_curr_rto)) {
         auto earliest_outstanding_segment = _outstanding_segments.begin();
-        if(earliest_outstanding_segment != _outstanding_segments.end()) {
+        if (earliest_outstanding_segment != _outstanding_segments.end()) {
             // Retransmit the earliest (the lowest sequence number) segment that hasn’t been fully
             // acknowledged by the TCP receiver
             // You do not need to track resended segments !!!
             send_segment(_outstanding_segments.begin()->second);
 
-            if(_receiver_window_size > 0) { // window size > 0 && timeout --> network congestion
+            if (_receiver_window_size > 0) {  // window size > 0 && timeout --> network congestion
                 // Double the value of RTO. This is called “exponential backoff”
                 _curr_rto = _curr_rto * 2;
             }
@@ -513,12 +502,12 @@ void TCPSender::tick(const size_t ms_since_last_tick) {
 
 unsigned int TCPSender::consecutive_retransmissions() const { return _consecutive_retransmission_count; }
 
-void TCPSender::send_empty_segment() {
-    // wait to be called and test
+void TCPSender::send_empty_segment() {  // help to send ACK seg
     TCPSegment segment;
     segment.header().seqno = next_seqno();
     _segments_out.emplace(segment);
 }
+
 ```
 
 

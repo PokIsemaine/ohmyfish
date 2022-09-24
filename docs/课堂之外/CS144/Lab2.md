@@ -280,6 +280,7 @@ class TCPReceiver {
 	* 当前段后一个
 
 * 步骤
+
 	1. 绿色 checkpoint 找边界
 	2. 找 三个可能的蓝色的位置 
 	3. 去除蓝色位置的偏移得到三个红色位置
@@ -395,7 +396,7 @@ uint64_t unwrap(WrappingInt32 n, WrappingInt32 isn, uint64_t checkpoint) {
 //! the acknowledgment number and window size to advertise back to the
 //! remote TCPSender.
 class TCPReceiver {
-    WrappingInt32 _isn {0};
+    WrappingInt32 _isn{0};
     bool _hasSyn = false;
 
     //! Our data structure for re-assembling bytes.
@@ -464,47 +465,48 @@ class TCPReceiver {
 // automated checks run by `make check_lab2`.
 
 template <typename... Targs>
-void DUMMY_CODE(Targs &&... /* unused */) {}
+void DUMMY_CODE(Targs &&.../* unused */) {}
 
 using namespace std;
 
 void TCPReceiver::segment_received(const TCPSegment &seg) {
     const TCPHeader &head = seg.header();
+
     // CHECK LISTEN
-    if(!_hasSyn) {
-        if(head.syn) {
-            _hasSyn = true;
-            _isn = head.seqno;
-        } else {
-            return ;
-        }
+    if (!_hasSyn && head.syn) {
+        _hasSyn = true;
+        _isn = head.seqno;
     }
+
+    if (!_hasSyn && !head.syn)
+        return;
 
     // 32bit seqno --> 64bit absolute seqno
 
-    // the index of the last reassembled byte (stream index)
-    // A recent absolute sequence number (absolute seqno)
-    // absolute seqno = stream index + 1
-    // bytes_written 得到下一个期望的 stream index, 转为 64bit absolute = stream index + 1
-    // the last reassembled byte 对应 bytes_written - 1
     uint64_t checkPoint = _reassembler.stream_out().bytes_written();
 
     uint64_t absSeqno = unwrap(head.seqno, _isn, checkPoint);
 
     // 64bit absolute seqno --> 64bit stream index
 
-    uint64_t streamIndex = absSeqno - 1 + head.syn;
+    uint64_t streamIndex = absSeqno + head.syn - 1;
+
+    if (absSeqno == 0 && !head.syn) {
+        return;
+    }
 
     // call push_substring
     _reassembler.push_substring(seg.payload().copy(), streamIndex, head.fin);
 }
 
 optional<WrappingInt32> TCPReceiver::ackno() const {
-    if(!_hasSyn) return nullopt;        // LISTEN
+    if (!_hasSyn)
+        return nullopt;  // LISTEN
     // bytes_written 得到下一个期望的 stream index, 转为 64bit absolute = stream index + 1
     uint64_t ackNo = _reassembler.stream_out().bytes_written() + 1;
     // 如果包含 FIN 那还需要再  + 1
-    if(_reassembler.stream_out().input_ended()) ++ackNo;
+    if (_reassembler.stream_out().input_ended())
+        ++ackNo;
     // 64bit absolute seqno --> 32bit seqno
     return wrap(ackNo, _isn);
 }
